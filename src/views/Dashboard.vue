@@ -75,7 +75,7 @@
 
           <img
             v-if="item.image"
-            :src="item.image.startsWith('http') ? item.image : `https://ta3eem-backend.onrender.com/${item.image}`"
+            :src="item.image.startsWith('http') ? item.image : `https://ta3eem-backend.onrender.com${item.image}`"
             alt="Menu item image"
             @error="handleImageError"
             class="item-image"
