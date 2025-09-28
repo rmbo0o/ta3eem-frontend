@@ -52,8 +52,8 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const API_BASE_URL ='https://ta3eem-frontendnew.onrender.com'
-//  import.meta.env.VITE_API_URL ||
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ta3eem-frontendnew.onrender.com'
+
 // Reactive data
 const categories = ref([
   { id: 1, name: 'Breakfast' },
@@ -76,7 +76,7 @@ async function fetchCategoryItems(categoryId, categoryName) {
   categoryItems.value = [] // Clear previous items
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/categories/food-items`, {
+    const response = await axios.get(`${API_BASE_URL}/categories/food-items`, {
       params: {
         category_id: categoryId,
         category_name: categoryName,
