@@ -16,12 +16,7 @@
     <div v-if="selectedCategoryName" class="category-items-section">
       <div class="category-header">
         <h2>{{ selectedCategoryName }} Items</h2>
-        <button
-          @click="fetchAllItems"
-          class="btn btn-outline-secondary"
-        >
-          Show All
-        </button>
+        <button @click="fetchAllItems" class="btn btn-outline-secondary">Show All</button>
       </div>
 
       <div v-if="loading" class="loading-spinner">
@@ -35,17 +30,14 @@
 
         <div v-for="item in categoryItems" :key="item.id" class="item-card">
           <div class="item-image">
-            <img :src="getImageUrl(item.image_url)" :alt="item.food_name">
+            <img :src="getImageUrl(item.image_url)" :alt="item.food_name" />
           </div>
           <div class="item-content">
             <h4>{{ item.food_name }}</h4>
             <p class="item-description">{{ item.description }}</p>
             <div class="item-footer">
               <span class="price">${{ item.price }}</span>
-              <button
-                @click.stop="viewOwnerMenu(item.owner_id)"
-                class="btn btn-view-menu"
-              >
+              <button @click.stop="viewOwnerMenu(item.owner_id)" class="btn btn-view-menu">
                 View Owner's Menu
               </button>
             </div>
@@ -57,10 +49,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ta3eem-backend.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ta3eem-frontendnew.onrender.com'
 
 // Reactive data
 const categories = ref([
@@ -68,35 +60,35 @@ const categories = ref([
   { id: 2, name: 'Lunch' },
   { id: 3, name: 'Dinner' },
   { id: 4, name: 'Drinks' },
-  { id: 5, name: 'Desserts' }
-]);
-const selectedCategoryId = ref(null);
-const selectedCategoryName = ref('');
-const categoryItems = ref([]);
-const loading = ref(false);
+  { id: 5, name: 'Desserts' },
+])
+const selectedCategoryId = ref(null)
+const selectedCategoryName = ref('')
+const categoryItems = ref([])
+const loading = ref(false)
 
 // Fetch items for selected category
 // Fetch items for selected category
 async function fetchCategoryItems(categoryId, categoryName) {
-  selectedCategoryId.value = categoryId;
-  selectedCategoryName.value = categoryName;
-  loading.value = true;
-  categoryItems.value = []; // Clear previous items
+  selectedCategoryId.value = categoryId
+  selectedCategoryName.value = categoryName
+  loading.value = true
+  categoryItems.value = [] // Clear previous items
 
   try {
     const response = await axios.get(`${API_BASE_URL}/api/categories/food-items`, {
       params: {
         category_id: categoryId,
-        category_name: categoryName
-      }
-    });
+        category_name: categoryName,
+      },
+    })
 
-    categoryItems.value = response.data || [];
+    categoryItems.value = response.data || []
   } catch (error) {
-    console.error('Error fetching category items:', error);
-    categoryItems.value = [];
+    console.error('Error fetching category items:', error)
+    categoryItems.value = []
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
@@ -117,22 +109,22 @@ async function fetchCategoryItems(categoryId, categoryName) {
 // View owner's menu
 function viewOwnerMenu(ownerId) {
   if (ownerId) {
-    window.location.href = `/owner/${ownerId}`;
+    window.location.href = `/owner/${ownerId}`
   }
 }
 
 // Handle image URLs
 function getImageUrl(imagePath) {
   if (!imagePath) {
-    return '/placeholder-food.jpg'; // Default placeholder image
+    return '/placeholder-food.jpg' // Default placeholder image
   }
-  return imagePath.startsWith('http') ? imagePath : `${API_BASE_URL}${imagePath}`;
+  return imagePath.startsWith('http') ? imagePath : `${API_BASE_URL}${imagePath}`
 }
 
 // Initialize component
 onMounted(() => {
   // You can fetch initial data here if needed
-});
+})
 </script>
 
 <style scoped>
@@ -150,11 +142,11 @@ onMounted(() => {
 }
 
 .category-card {
-  background: #FFD700;
+  background: #ffd700;
   color: #333;
   border-radius: 10px;
   padding: 55px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
@@ -164,8 +156,8 @@ onMounted(() => {
 
 .category-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  background: #FFC107;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: #ffc107;
   color: black;
 }
 
@@ -202,13 +194,13 @@ onMounted(() => {
   background: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .item-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .item-image {
@@ -266,7 +258,7 @@ onMounted(() => {
 
 .btn-view-menu {
   background-color: #333;
-  color: #FFD700;
+  color: #ffd700;
   border: none;
   padding: 8px 15px;
   border-radius: 5px;
@@ -276,7 +268,7 @@ onMounted(() => {
 
 .btn-view-menu:hover {
   background-color: #555;
-  color: #FFC107;
+  color: #ffc107;
 }
 
 .loading-spinner {
