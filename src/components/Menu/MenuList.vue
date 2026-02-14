@@ -96,7 +96,8 @@ getImageUrl(imagePath) {
   },
       viewOwnerMenu(ownerId) {
   if (ownerId) {
-    window.location.href = `/owner/${ownerId}`;
+      this.$router.push(`/owner/${ownerId}`);
+
   }
 }
   },
