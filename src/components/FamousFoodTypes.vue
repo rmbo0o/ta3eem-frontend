@@ -23,13 +23,14 @@
       <button class="btn btn-clear btn-outline-primary me-2" @click="clearFilters">Clear</button>
     </div>
     <div class="d-flex flex-wrap justify-content-center mb-4">
-      <button
+<!--      <button
         v-for="type in popularTypes"
         :key="type"
         class="btn btn-outline-primary me-2 mb-2"
         @click="fetchFoodItems(type)">
         {{ type }}
-      </button>
+      </button>>
+      -->
       <button
         class="btn btn-outline-primary mb-2"
         @click="fetchAllFoodItems">
