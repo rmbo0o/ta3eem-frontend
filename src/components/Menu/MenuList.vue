@@ -2,7 +2,7 @@
   <div class="menu-container">
     <div>
                             <button
-                @click.stop="viewOwnerMenu(ownerId)"
+                @click="viewOwnerMenu(ownerId)"
                 class=" btn btn-view-menu"
               >
                 View Owner's Menu
