@@ -15,6 +15,7 @@ const app = createApp(App)
 
 // Make axios available globally (optional)
 app.config.globalProperties.$http = axios
+app.config.devtools = true
 
 app.use(createPinia())
 app.use(router)
