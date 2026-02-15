@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import axios from '@/utils/api'
+import axios from "axios";
 import { useRouter } from 'vue-router'
 
 export default {
