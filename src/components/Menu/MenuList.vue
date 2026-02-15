@@ -51,6 +51,7 @@
 
 <script>
 import axios from '@/utils/api'
+import { useRouter } from 'vue-router'
 
 export default {
   props: {
@@ -72,34 +73,33 @@ export default {
   },
   methods: {
     formatPrice(price) {
-  const num = parseFloat(price);
-  return isNaN(num) ? '0.00' : num.toFixed(2); // Fallback for invalid numbers
-},
-getImageUrl(imagePath) {
-    if (!imagePath) return '';
-    if (imagePath.startsWith('http')) return imagePath;
-    return `https://ta3eem-backend.onrender.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
-  },
-  handleImageError(event) {
-    console.error('Image failed to load:', event.target.src);
-    event.target.style.display = 'none';
-  },
-  ensureHttp(link) {
-    if (!link) return '';
-    return link.startsWith('http') ? link : `https://${link}`;
-  },
-  formatSocialLink(link) {
-    if (!link) return '';
-    // Extract username from Instagram URL
-    const match = link.match(/instagram\.com\/([^/]+)/);
-    return match ? `@${match[1]}` : link;
-  },
-      viewOwnerMenu(ownerId) {
-  if (ownerId) {
-      this.$router.push(`/owner/${ownerId}`);
-
-  }
-}
+      const num = parseFloat(price);
+      return isNaN(num) ? '0.00' : num.toFixed(2);
+    },
+    getImageUrl(imagePath) {
+      if (!imagePath) return '';
+      if (imagePath.startsWith('http')) return imagePath;
+      return `https://ta3eem-backend.onrender.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    },
+    handleImageError(event) {
+      console.error('Image failed to load:', event.target.src);
+      event.target.style.display = 'none';
+    },
+    ensureHttp(link) {
+      if (!link) return '';
+      return link.startsWith('http') ? link : `https://${link}`;
+    },
+    formatSocialLink(link) {
+      if (!link) return '';
+      const match = link.match(/instagram\.com\/([^/]+)/);
+      return match ? `@${match[1]}` : link;
+    },
+    viewOwnerMenu(ownerId) {
+      if (ownerId) {
+        // Use the router instance from the setup function below
+        this.$router.push(`/owner/${ownerId}`);
+      }
+    }
   },
   computed: {
     displayedItems() {
@@ -108,28 +108,28 @@ getImageUrl(imagePath) {
       }
       return this.menuItems;
     }
-
   },
   async created() {
-  try {
-    const endpoint = this.ownerId
-      ? `/menu/public/${this.ownerId}`
-      : '/menu/public/unknown';
+    try {
+      const endpoint = this.ownerId
+        ? `/menu/public/${this.ownerId}`
+        : '/menu/public/unknown';
 
-    const { data } = await axios.get(endpoint);
-    this.menuItems = Array.isArray(data) ? data : [];
-  } catch (err) {
-    this.error = err.response?.data?.message || 'Failed to load menu';
-    console.error('Error loading menu:', err);
-  } finally {
-    this.loading = false;
+      const { data } = await axios.get(endpoint);
+      this.menuItems = Array.isArray(data) ? data : [];
+    } catch (err) {
+      this.error = err.response?.data?.message || 'Failed to load menu';
+      console.error('Error loading menu:', err);
+    } finally {
+      this.loading = false;
+    }
+  },
+  // Add this setup function to provide the router
+  setup() {
+    const router = useRouter();
+    return { router };
   }
 }
-
-
-
-  }
-
 </script>
 
 <style scoped>
