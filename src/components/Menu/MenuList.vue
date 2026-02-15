@@ -95,11 +95,12 @@ export default {
       return match ? `@${match[1]}` : link;
     },
     viewOwnerMenu(ownerId) {
-      if (ownerId) {
-        // Use the router instance from the setup function below
-        this.$router.push(`/owner/${ownerId}`);
-      }
-    }
+  console.log('Navigating to owner:', ownerId)
+  console.log('Router available:', this.$router)
+  if (ownerId) {
+    this.$router.push(`/owner/${ownerId}`)
+  }
+}
   },
   computed: {
     displayedItems() {
