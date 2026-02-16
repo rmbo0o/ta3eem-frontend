@@ -51,6 +51,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ta3eem-frontendnew.onrender.com'
 
@@ -107,11 +110,11 @@ async function fetchCategoryItems(categoryId, categoryName) {
 // }
 
 // View owner's menu
-function viewOwnerMenu(ownerId) {
+const viewOwnerMenu = (ownerId) => {
   console.log('Navigating to owner:', ownerId)
-  console.log('Router available:', this.$router)
+  console.log('Router available:', router)
   if (ownerId) {
-    this.$router.push(`/owner/${ownerId}/menu`)
+    router.push(`/owner/${ownerId}/menu`)
   }
 }
 
