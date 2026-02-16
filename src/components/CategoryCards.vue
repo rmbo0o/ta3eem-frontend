@@ -108,8 +108,10 @@ async function fetchCategoryItems(categoryId, categoryName) {
 
 // View owner's menu
 function viewOwnerMenu(ownerId) {
+  console.log('Navigating to owner:', ownerId)
+  console.log('Router available:', this.$router)
   if (ownerId) {
-    window.location.href = `/owner/${ownerId}/menu`
+    this.$router.push(`/owner/${ownerId}/menu`)
   }
 }
 
