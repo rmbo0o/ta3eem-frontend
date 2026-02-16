@@ -98,7 +98,7 @@ export default {
   console.log('Navigating to owner:', ownerId)
   console.log('Router available:', this.$router)
   if (ownerId) {
-    this.$router.push(`/public/${ownerId}`)
+    this.$router.push(`/owner/${ownerId}`)
   }
 }
   },

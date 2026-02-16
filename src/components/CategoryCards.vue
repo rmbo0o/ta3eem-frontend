@@ -109,7 +109,7 @@ async function fetchCategoryItems(categoryId, categoryName) {
 // View owner's menu
 function viewOwnerMenu(ownerId) {
   if (ownerId) {
-    window.location.href = `/owner/${ownerId}`
+    window.location.href = `/owner/${ownerId}/menu`
   }
 }
 
