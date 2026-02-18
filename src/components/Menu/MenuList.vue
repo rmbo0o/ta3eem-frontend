@@ -110,21 +110,22 @@ export default {
       return this.menuItems;
     }
   },
-  async created() {
-    try {
-      const endpoint = this.ownerId
-        ? `/api/menu/public/${this.ownerId}`
-        : '/api/menu/public/unknown';
+async created() {
+  try {
+    const baseURL = 'https://ta3eem-backend.onrender.com'; // Your backend URL
+    const endpoint = this.ownerId
+      ? `${baseURL}/api/menu/public/${this.ownerId}`
+      : `${baseURL}/api/menu/public/unknown`;
 
-      const { data } = await axios.get(endpoint);
-      this.menuItems = Array.isArray(data) ? data : [];
-    } catch (err) {
-      this.error = err.response?.data?.message || 'Failed to load menu';
-      console.error('Error loading menu:', err);
-    } finally {
-      this.loading = false;
-    }
-  },
+    const { data } = await axios.get(endpoint);
+    this.menuItems = Array.isArray(data) ? data : [];
+  } catch (err) {
+    this.error = err.response?.data?.message || 'Failed to load menu';
+    console.error('Error loading menu:', err);
+  } finally {
+    this.loading = false;
+  }
+},
   // Add this setup function to provide the router
   setup() {
     const router = useRouter();
