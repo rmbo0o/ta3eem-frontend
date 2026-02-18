@@ -113,8 +113,8 @@ export default {
   async created() {
     try {
       const endpoint = this.ownerId
-        ? `/public/${this.ownerId}`
-        : '/public/unknown';
+        ? `/api/menu/public/${this.ownerId}`
+        : '/api/menu/public/unknown';
 
       const { data } = await axios.get(endpoint);
       this.menuItems = Array.isArray(data) ? data : [];
