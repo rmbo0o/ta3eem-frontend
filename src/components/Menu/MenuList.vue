@@ -76,15 +76,25 @@ export default {
       const num = parseFloat(price);
       return isNaN(num) ? '0.00' : num.toFixed(2);
     },
-    getImageUrl(imagePath) {
-      if (!imagePath) return '';
-      if (imagePath.startsWith('http')) return imagePath;
-      return `https://ta3eem-backend.onrender.com${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
-    },
+getImageUrl(imagePath) {
+  if (!imagePath) return '';
+
+  // If it's already a full URL (Cloudinary or other), return as is
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+
+  // For any legacy local paths, return empty (they won't work anymore)
+  console.warn('Legacy local image path detected:', imagePath);
+  return '';
+},
     handleImageError(event) {
-      console.error('Image failed to load:', event.target.src);
-      event.target.style.display = 'none';
-    },
+  console.error('Image failed to load:', event.target.src);
+  // Replace with a default food placeholder
+  event.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1/ta3eem/default-food.jpg';
+  // Or hide it
+  // event.target.style.display = 'none';
+},
     ensureHttp(link) {
       if (!link) return '';
       return link.startsWith('http') ? link : `https://${link}`;
