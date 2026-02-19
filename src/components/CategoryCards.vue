@@ -62,8 +62,8 @@ const categories = ref([
   { id: 1, name: 'Breakfast' },
   { id: 2, name: 'Lunch' },
   { id: 3, name: 'Dinner' },
-  { id: 4, name: 'Drinks' },
-  { id: 5, name: 'Desserts' },
+  { id: 4, name: 'Desserts' },
+  { id: 5, name: 'Drinks' },
 ])
 const selectedCategoryId = ref(null)
 const selectedCategoryName = ref('')
