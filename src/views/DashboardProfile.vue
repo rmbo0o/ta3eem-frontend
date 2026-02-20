@@ -1,56 +1,60 @@
 <template>
-  <div class="container mt-4">
-    <h2>Manage Your Profile</h2>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h2>Manage Your Profile</h2>
+      <button @click="logout" class="btn-logout">Logout</button>
+    </div>
 
     <!-- Profile Management Form -->
-    <form @submit.prevent="saveChanges">
-      <!-- Bio Field -->
-      <div class="form-group">
-        <label for="bio">Bio</label>
-        <textarea
-          v-model="profile.bio"
-          id="bio"
-          class="form-control"
-          placeholder="Enter your bio"
-        ></textarea>
-      </div>
-
-      <!-- Image Upload Section -->
-      <div class="form-group">
-        <label for="logo">Logo (Image Upload)</label>
-        <input
-          type="file"
-          id="logo"
-          accept="image/*"
-          class="form-control-file"
-          @change="handleImageUpload"
-        />
-
-        <!-- Logo Preview -->
-        <div v-if="logoPreview" class="mt-2">
-          <img :src="logoPreview" alt="Logo Preview" class="img-fluid" width="150" />
+    <div class="profile-section">
+      <form @submit.prevent="saveChanges">
+        <!-- Bio Field -->
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea
+            v-model="profile.bio"
+            id="bio"
+            class="form-control"
+            placeholder="Enter your bio"
+            rows="4"
+          ></textarea>
         </div>
-      </div>
 
-      <!-- Save Button -->
-      <button
-        type="submit"
-        class="btn btn-primary"
-        :disabled="isLoading"
-      >
-        {{ isLoading ? 'Saving...' : 'Save Changes' }}
-      </button>
-    </form>
+        <!-- Image Upload Section -->
+        <div class="form-group">
+          <label for="logo">Logo (Image Upload)</label>
+          <div class="file-input-wrapper">
+            <input
+              type="file"
+              id="logo"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="file-input"
+            />
+            <label for="logo" class="file-label">Choose File</label>
+            <span class="file-name">{{ fileName || 'No file chosen' }}</span>
+          </div>
+
+          <!-- Logo Preview -->
+          <div v-if="logoPreview" class="logo-preview">
+            <img :src="logoPreview" alt="Logo Preview" />
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <button
+          type="submit"
+          class="btn-save"
+          :disabled="isLoading"
+        >
+          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </form>
+    </div>
 
     <!-- Reviews Section -->
-    <div class="mt-4">
-      <h3>Your Reviews</h3>
-
-      <!-- Debug info - remove after fixing -->
-      <div v-if="debug" class="alert alert-info">
-        User ID: {{ user.id }}<br>
-        Reviews count: {{ reviews.length }}
-      </div>
+    <div class="reviews-section">
+      <h3>Customer Reviews</h3>
 
       <div v-if="isLoading" class="text-center">
         <div class="spinner-border text-primary" role="status">
@@ -58,21 +62,48 @@
         </div>
       </div>
 
-      <div v-else-if="reviews.length === 0">
+      <div v-else-if="reviews.length === 0" class="no-reviews">
         No reviews available for this owner.
       </div>
 
-      <div v-else>
-        <div v-for="review in reviews" :key="review.id" class="review-item">
-          <div>
-            <strong>{{ review.reviewer_name || 'Anonymous' }}</strong>
-            <span v-if="review.rating" class="badge bg-warning ms-2">
-              Rating: {{ review.rating }}/5
-            </span>
-            <p class="mt-2">{{ review.comment }}</p>
-            <small class="text-muted">
-              {{ formatDate(review.created_at) }}
-            </small>
+      <div v-else class="reviews-list">
+        <div v-for="review in reviews" :key="review.id" class="review-card">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <h4>{{ review.reviewer_name || 'Anonymous' }}</h4>
+              <div class="rating">
+                <span v-for="star in 5" :key="star" class="star" :class="{ 'filled': star <= review.rating }">★</span>
+                <span class="rating-value">{{ review.rating }}/5</span>
+              </div>
+            </div>
+            <span class="review-date">{{ formatDate(review.created_at) }}</span>
+          </div>
+
+          <p class="review-text">{{ review.comment }}</p>
+
+          <!-- Owner's Response -->
+          <div v-if="review.response_text" class="owner-response">
+            <div class="response-header">
+              <span class="owner-label">Your Response:</span>
+            </div>
+            <p class="response-text">{{ review.response_text }}</p>
+          </div>
+
+          <!-- Response Input (only if no response yet) -->
+          <div v-if="!review.response_text" class="response-form">
+            <textarea
+              v-model="review.responseInput"
+              placeholder="Write your response to this review..."
+              class="response-input"
+              rows="3"
+            ></textarea>
+            <button
+              class="btn-response"
+              @click="submitResponse(review.id, review.responseInput)"
+              :disabled="isLoading || !review.responseInput"
+            >
+              Post Response
+            </button>
           </div>
         </div>
       </div>
@@ -96,15 +127,16 @@ export default {
         email: ''
       },
       logoPreview: null,
+      fileName: '',
       isLoading: false,
       reviews: [],
-      debug: true // Set to false in production
     };
   },
   methods: {
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.fileName = file.name;
         this.logoPreview = URL.createObjectURL(file);
         this.profile.logo = file;
       }
@@ -119,9 +151,7 @@ export default {
 
       try {
         this.isLoading = true;
-        const response = await axios.get('/auth/profile', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await axios.get('/auth/profile');
 
         console.log('Profile response:', response.data);
 
@@ -129,14 +159,12 @@ export default {
         this.profile.logo = response.data.logo || null;
         this.logoPreview = response.data.logo || null;
 
-        // Store user info
         this.user = {
           id: response.data.id,
           username: response.data.username,
           email: response.data.email
         };
 
-        // After getting user ID, fetch their reviews
         if (this.user.id) {
           await this.fetchReviews(this.user.id);
         }
@@ -149,23 +177,19 @@ export default {
     },
 
     async fetchReviews(ownerId) {
-      const token = localStorage.getItem('token');
-
       console.log('Fetching reviews for owner ID:', ownerId);
 
       try {
-        const response = await axios.get(`/reviews/${ownerId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await axios.get(`/reviews/${ownerId}`);
 
         console.log('Reviews API response:', response.data);
-        this.reviews = response.data || [];
+        this.reviews = response.data.map(review => ({
+          ...review,
+          responseInput: '' // Initialize empty response input
+        })) || [];
 
       } catch (error) {
         console.error('Error fetching reviews:', error);
-        if (error.response) {
-          console.error('Error response:', error.response.data);
-        }
       }
     },
 
@@ -179,19 +203,46 @@ export default {
       }
 
       try {
-        const token = localStorage.getItem('token');
         const response = await axios.put('/auth/profile', formData, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
         });
 
         console.log('Profile updated:', response.data);
-        await this.fetchProfile(); // Refresh profile data
+        await this.fetchProfile();
+
+        // Reset file input
+        this.fileName = '';
 
       } catch (error) {
         console.error('Error updating profile:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async submitResponse(reviewId, responseText) {
+      if (!responseText || !responseText.trim()) return;
+
+      try {
+        this.isLoading = true;
+
+        const response = await axios.put(`/reviews/${reviewId}`, {
+          response_text: responseText
+        });
+
+        console.log('Response saved:', response.data);
+
+        // Update the local review with the response
+        const review = this.reviews.find(r => r.id === reviewId);
+        if (review) {
+          review.response_text = responseText;
+          review.responseInput = '';
+        }
+
+      } catch (error) {
+        console.error('Error saving response:', error);
       } finally {
         this.isLoading = false;
       }
@@ -205,184 +256,365 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    },
+
+    logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
   },
 
   async created() {
-    await this.fetchProfile(); // Uncommented and added await
+    await this.fetchProfile();
   }
 };
 </script>
 
 <style scoped>
-/* Base Styles */
-.container {
-  max-width: 800px;
+.dashboard-container {
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #FFD700;
 }
 
 h2, h3 {
-  color: #2d333f;
+  color: #FFD700;
+  margin: 0;
+}
+
+h3 {
   margin-bottom: 1.5rem;
 }
 
-h2 {
-  font-size: 1.8rem;
-  border-bottom: 2px solid #FFD700;
-  padding-bottom: 0.5rem;
+.btn-logout {
+  background-color: #333;
+  color: #FFD700;
+  border: 1px solid #FFD700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-/* Form Styles */
+.btn-logout:hover {
+  background-color: #FFD700;
+  color: #333;
+}
+
+.profile-section {
+  background-color: #2d2d2d;
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
 .form-group {
   margin-bottom: 1.8rem;
 }
 
 label {
   font-weight: 600;
-  color: #2d333f;
+  color: #FFD700;
   display: block;
   margin-bottom: 0.5rem;
 }
 
 .form-control {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 5px;
   padding: 0.75rem;
   width: 100%;
+  color: #fff;
   transition: all 0.3s ease;
 }
 
 .form-control:focus {
   border-color: #FFD700;
-  box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25);
 }
 
-textarea.form-control {
-  height: 150px;
-  resize: vertical;
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* Button Styles */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+.file-input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.file-label {
+  background-color: #444;
+  color: #FFD700;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid #FFD700;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.file-label:hover {
+  background-color: #FFD700;
+  color: #333;
+}
+
+.file-name {
+  color: #999;
+}
+
+.logo-preview {
+  margin-top: 1rem;
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  padding: 0.5rem;
+  display: inline-block;
+  background-color: #333;
+}
+
+.logo-preview img {
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 5px;
+}
+
+.btn-save {
+  background-color: #FFD700;
+  color: #333;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: none;
+  width: 100%;
+  font-size: 1.1rem;
 }
 
-.btn-primary {
-  background-color: #FFD700;
-  color: #2d333f;
-}
-
-.btn-primary:hover:not(:disabled) {
+.btn-save:hover:not(:disabled) {
   background-color: #FFC107;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
 }
 
-.btn-secondary {
-  background-color: #f8f9fa;
-  color: #2d333f;
-  border: 1px solid #dee2e6;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #e9ecef;
-}
-
-button:disabled {
-  background-color: #e0e0e0;
-  color: #a0a0a0;
+.btn-save:disabled {
+  background-color: #666;
+  color: #999;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Image Upload Preview */
-.img-fluid {
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  padding: 4px;
-  background: white;
 }
 
 /* Reviews Section */
-.review-item {
-  padding: 1.25rem;
-  margin: 1rem 0;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  background-color: white;
+.reviews-section {
+  background-color: #2d2d2d;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #444;
   transition: all 0.3s ease;
 }
 
-.review-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.review-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+  border-color: #FFD700;
 }
 
-.review-item strong {
-  color: #2d333f;
-  font-weight: 600;
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
 }
 
-.review-item span {
-  color: #6c757d;
-  margin-left: 1rem;
+.reviewer-info h4 {
+  color: #FFD700;
+  margin: 0 0 0.5rem 0;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.star {
+  color: #444;
+  font-size: 1.2rem;
+}
+
+.star.filled {
+  color: #FFD700;
+}
+
+.rating-value {
+  margin-left: 0.5rem;
+  color: #999;
   font-size: 0.9rem;
 }
 
-.review-item p {
-  color: #495057;
-  margin: 0.5rem 0;
+.review-date {
+  color: #999;
+  font-size: 0.9rem;
 }
 
-/* Loading State (if you want to add a spinner later) */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.review-text {
+  color: #fff;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 }
 
-.loading-spinner {
-  border: 3px solid rgba(255, 215, 0, 0.3);
-  border-top: 3px solid #FFD700;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
+.owner-response {
+  background-color: #2d2d2d;
+  border-left: 3px solid #FFD700;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 0 5px 5px 0;
+}
+
+.response-header {
+  margin-bottom: 0.5rem;
+}
+
+.owner-label {
+  color: #FFD700;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.response-text {
+  color: #ddd;
+  margin: 0;
+}
+
+.response-form {
+  margin-top: 1rem;
+}
+
+.response-input {
+  width: 100%;
+  background-color: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 5px;
+  padding: 0.75rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.response-input:focus {
+  border-color: #FFD700;
+  outline: none;
+}
+
+.btn-response {
+  background-color: transparent;
+  color: #FFD700;
+  border: 1px solid #FFD700;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-response:hover:not(:disabled) {
+  background-color: #FFD700;
+  color: #333;
+}
+
+.btn-response:disabled {
+  border-color: #666;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.no-reviews {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  background-color: #333;
+  border-radius: 8px;
+}
+
+/* Loading Spinner */
+.spinner-border {
   display: inline-block;
-  vertical-align: middle;
-  margin-right: 8px;
+  width: 2rem;
+  height: 2rem;
+  border: 0.25rem solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+  color: #FFD700;
 }
 
-/* Responsive Adjustments */
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .container {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .profile-section,
+  .reviews-section {
     padding: 1.5rem;
   }
 
-  .review-item {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .container {
-    padding: 1rem;
+  .review-header {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
+  .file-input-wrapper {
+    flex-wrap: wrap;
   }
 }
 </style>
