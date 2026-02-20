@@ -24,7 +24,7 @@ export default {
     async submitResponse() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post('http://localhost:5000/api/reviews/response', {
+        const response = await axios.post('https://ta3eem-backend.onrender.com/api/reviews/response', {
           reviewId: this.reviewId,
           response: this.response
         }, {

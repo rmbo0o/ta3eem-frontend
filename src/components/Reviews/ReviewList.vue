@@ -43,7 +43,7 @@ export default {
     async fetchReviews() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`http://localhost:5000/api/reviews/${this.ownerId}`, {
+        const response = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${this.ownerId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
