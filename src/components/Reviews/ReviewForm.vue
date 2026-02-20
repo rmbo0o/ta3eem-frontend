@@ -21,23 +21,31 @@ export default {
     };
   },
   methods: {
-    async submitResponse() {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await axios.post('https://ta3eem-backend.onrender.com/api/reviews/response', {
-          reviewId: this.reviewId,
-          response: this.response
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        console.log('Response added:', response.data);
-        this.response = '';  // Clear input after submission
-      } catch (error) {
-        console.error('Error submitting response:', error);
+async submitResponse() {
+  const token = localStorage.getItem('token');
+  try {
+    // ✅ CORRECT: Use PUT request with review ID in URL
+    const response = await axios.put(
+      `https://ta3eem-backend.onrender.com/api/reviews/${this.reviewId}`,
+      { response_text: this.response },  // Changed from 'response' to 'response_text'
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       }
+    );
+    console.log('Response added:', response.data);
+    this.response = '';  // Clear input after submission
+    // Optionally emit an event to refresh the reviews list
+    this.$emit('response-submitted');
+  } catch (error) {
+    console.error('Error submitting response:', error);
+    if (error.response) {
+      alert(`Error: ${error.response.data.message || 'Failed to submit response'}`);
     }
+  }
+}
   }
 };
 </script>

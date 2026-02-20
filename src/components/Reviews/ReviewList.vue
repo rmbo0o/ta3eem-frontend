@@ -1,36 +1,48 @@
 <template>
   <div v-if="reviews.length">
     <div v-for="review in reviews" :key="review.id" class="review-item">
+      <!-- Review content -->
       <div class="review-header">
         <h5>{{ review.reviewer_name }}</h5>
         <p>Rating: {{ review.rating }} / 5</p>
       </div>
-      <p>{{ review.comment }}</p>
+      <p>{{ review.review_text }}</p>
 
-      <!-- Display the owner's response if it exists -->
-      <div v-if="review.response">
-        <h6>Your Response:</h6>
-        <p>{{ review.response }}</p>
+      <!-- Display owner's response if exists -->
+      <div v-if="review.response_text" class="owner-response">
+        <h6>Owner's Response:</h6>
+        <p>{{ review.response_text }}</p>
       </div>
 
-      <!-- Add a response form if there's no response yet -->
-      <ReviewForm v-if="!review.response" :reviewId="review.id" />
+      <!-- Response form for owners -->
+      <ReviewForm
+        v-if="!review.response_text && isOwner"
+        :reviewId="review.id"
+        @response-submitted="fetchReviews"
+      />
     </div>
   </div>
   <div v-else>
-    <p>No reviews available.</p>
+    <p>No reviews yet. Be the first to review!</p>
   </div>
 </template>
 
 <script>
 import axios from '@/utils/api';
-import ReviewForm from './ReviewForm.vue';  // Import the response form component
+import ReviewForm from './ReviewForm.vue';
 
 export default {
-  components: {
-    ReviewForm
+  components: { ReviewForm },
+  props: {
+    ownerId: {
+      type: [String, Number],
+      required: true
+    },
+    isOwner: {
+      type: Boolean,
+      default: false
+    }
   },
-  props: ['ownerId'],
   data() {
     return {
       reviews: []
@@ -41,13 +53,8 @@ export default {
   },
   methods: {
     async fetchReviews() {
-      const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${this.ownerId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`/reviews/${this.ownerId}`);
         this.reviews = response.data;
       } catch (error) {
         console.error('Error fetching reviews:', error);
