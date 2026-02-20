@@ -91,6 +91,11 @@ export default {
         bio: '',
         logo: null,
       },
+          user: {  // Add this
+      id: null,
+      username: '',
+      email: ''
+    },
       logoPreview: null,
       isLoading: false,
       reviews: [],
@@ -107,43 +112,62 @@ export default {
     },
 
     // Fetch the profile data and reviews on page load
-    async fetchProfile() {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('https://ta3eem-backend.onrender.com/api/auth/profile', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          this.profile.bio = response.data.bio;
-          this.profile.logo = response.data.logo;
-          this.logoPreview = response.data.logo;
-        } catch (error) {
-          console.error('Error fetching profile:', error);
-        }
-      }
-    },
+async fetchProfile() {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const response = await axios.get('https://ta3eem-backend.onrender.com/api/auth/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      this.profile.bio = response.data.bio;
+      this.profile.logo = response.data.logo;
+      this.logoPreview = response.data.logo;
 
-    // Fetch the reviews of the owner
-    async fetchReviews() {
-      const token = localStorage.getItem('token');
-      const ownerId = 3; // Replace with dynamic user id logic if needed
+      // Store user info including ID
+      this.user = {
+        id: response.data.id,
+        username: response.data.username,
+        email: response.data.email
+      };
 
-      try {
-        const response = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${ownerId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        this.reviews = response.data;  // Assuming data is an array of reviews
-        this.reviews.forEach(review => {
-          review.responseInput = review.response || '';  // Bind existing response (if any)
-        });
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-      }
-    },
+      // After getting user ID, fetch their reviews
+      this.fetchReviews();
+
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  }
+},
+
+// Fetch the reviews of the owner
+async fetchReviews() {
+  const token = localStorage.getItem('token');
+
+  // Get the actual owner ID from the profile data
+  const ownerId = this.user?.id; // You need to have user data
+
+  if (!ownerId) {
+    console.error('No owner ID found');
+    return;
+  }
+
+  try {
+    const response = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${ownerId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    this.reviews = response.data;
+    this.reviews.forEach(review => {
+      review.responseInput = ''; // Initialize empty response input
+    });
+    console.log('Reviews loaded:', this.reviews); // Debug log
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+  }
+},
 
     // Save the updated profile
     async saveChanges() {
@@ -212,7 +236,7 @@ export default {
   },
 
   created() {
-    // this.fetchProfile();
+    this.fetchProfile();
     this.fetchReviews(); // Fetch reviews as well
   },
 };
