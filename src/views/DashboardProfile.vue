@@ -273,8 +273,8 @@ export default {
 <style scoped>
 .dashboard-container {
   max-width: 900px;
-  margin: 30px auto;
-  padding: 2rem;
+  margin: 0 auto;
+  padding: 6rem;
   background-color: #1a1a1a;
   min-height: 100vh;
   color: #ffffff;
