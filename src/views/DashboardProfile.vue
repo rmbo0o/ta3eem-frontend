@@ -275,7 +275,7 @@ export default {
   max-width: 900px;
   margin: 0 auto;
   padding: 6rem;
-  background-color: #1a1a1a;
+  background-color: white;
   min-height: 100vh;
   color: #ffffff;
 }
