@@ -12,7 +12,6 @@
           id="bio"
           class="form-control"
           placeholder="Enter your bio"
-          required
         ></textarea>
       </div>
 
@@ -25,7 +24,6 @@
           accept="image/*"
           class="form-control-file"
           @change="handleImageUpload"
-          required
         />
 
         <!-- Logo Preview -->
@@ -47,33 +45,34 @@
     <!-- Reviews Section -->
     <div class="mt-4">
       <h3>Your Reviews</h3>
-      <div v-if="reviews.length === 0">No reviews available.</div>
+
+      <!-- Debug info - remove after fixing -->
+      <div v-if="debug" class="alert alert-info">
+        User ID: {{ user.id }}<br>
+        Reviews count: {{ reviews.length }}
+      </div>
+
+      <div v-if="isLoading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+
+      <div v-else-if="reviews.length === 0">
+        No reviews available for this owner.
+      </div>
+
       <div v-else>
         <div v-for="review in reviews" :key="review.id" class="review-item">
           <div>
-            <strong>{{ review.reviewer_name }}</strong>
-            <span>Rating: {{ review.rating }} / 5</span>
-            <p>{{ review.comment }}</p>
-            <p v-if="review.response">
-              <strong>Your response: </strong>{{ review.response }}
-            </p>
-
-            <!-- Response input -->
-            <div v-if="!review.response">
-              <textarea
-                v-model="review.responseInput"
-                placeholder="Write your response..."
-                class="form-control"
-                required
-              ></textarea>
-              <button
-                class="btn btn-secondary mt-2"
-                @click="submitResponse(review.id, review.responseInput)"
-                :disabled="isLoading"
-              >
-                Save Response
-              </button>
-            </div>
+            <strong>{{ review.reviewer_name || 'Anonymous' }}</strong>
+            <span v-if="review.rating" class="badge bg-warning ms-2">
+              Rating: {{ review.rating }}/5
+            </span>
+            <p class="mt-2">{{ review.comment }}</p>
+            <small class="text-muted">
+              {{ formatDate(review.created_at) }}
+            </small>
           </div>
         </div>
       </div>
@@ -91,18 +90,18 @@ export default {
         bio: '',
         logo: null,
       },
-          user: {  // Add this
-      id: null,
-      username: '',
-      email: ''
-    },
+      user: {
+        id: null,
+        username: '',
+        email: ''
+      },
       logoPreview: null,
       isLoading: false,
       reviews: [],
+      debug: true // Set to false in production
     };
   },
   methods: {
-    // Handle the logo image upload
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -111,90 +110,85 @@ export default {
       }
     },
 
-    // Fetch the profile data and reviews on page load
-async fetchProfile() {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const response = await axios.get('https://ta3eem-backend.onrender.com/api/auth/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      this.profile.bio = response.data.bio;
-      this.profile.logo = response.data.logo;
-      this.logoPreview = response.data.logo;
+    async fetchProfile() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
 
-      // Store user info including ID
-      this.user = {
-        id: response.data.id,
-        username: response.data.username,
-        email: response.data.email
-      };
+      try {
+        this.isLoading = true;
+        const response = await axios.get('/auth/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-      // After getting user ID, fetch their reviews
-      this.fetchReviews();
+        console.log('Profile response:', response.data);
 
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  }
-},
+        this.profile.bio = response.data.bio || '';
+        this.profile.logo = response.data.logo || null;
+        this.logoPreview = response.data.logo || null;
 
-// Fetch the reviews of the owner
-async fetchReviews() {
-  const token = localStorage.getItem('token');
+        // Store user info
+        this.user = {
+          id: response.data.id,
+          username: response.data.username,
+          email: response.data.email
+        };
 
-  // Get the actual owner ID from the profile data
-  const ownerId = this.user?.id; // You need to have user data
+        // After getting user ID, fetch their reviews
+        if (this.user.id) {
+          await this.fetchReviews(this.user.id);
+        }
 
-  if (!ownerId) {
-    console.error('No owner ID found');
-    return;
-  }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-  try {
-    const response = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${ownerId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    this.reviews = response.data;
-    this.reviews.forEach(review => {
-      review.responseInput = ''; // Initialize empty response input
-    });
-    console.log('Reviews loaded:', this.reviews); // Debug log
-  } catch (error) {
-    console.error('Error fetching reviews:', error);
-  }
-},
+    async fetchReviews(ownerId) {
+      const token = localStorage.getItem('token');
 
-    // Save the updated profile
+      console.log('Fetching reviews for owner ID:', ownerId);
+
+      try {
+        const response = await axios.get(`/reviews/${ownerId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        console.log('Reviews API response:', response.data);
+        this.reviews = response.data || [];
+
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        if (error.response) {
+          console.error('Error response:', error.response.data);
+        }
+      }
+    },
+
     async saveChanges() {
       this.isLoading = true;
 
       const formData = new FormData();
       formData.append('bio', this.profile.bio);
-
       if (this.profile.logo) {
-        formData.append('logo', this.profile.logo); // Add logo if uploaded
+        formData.append('logo', this.profile.logo);
       }
 
       try {
-        const token = localStorage.getItem('token'); // Get token from localStorage
-
-        const response = await axios.put('https://ta3eem-backend.onrender.com/api/auth/profile', formData, {
+        const token = localStorage.getItem('token');
+        const response = await axios.put('/auth/profile', formData, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
+            'Content-Type': 'multipart/form-data'
+          }
         });
-        await this.fetchProfile();
-        console.log('Profile updated successfully:', response.data);
-        this.$router.push('/profile'); // Redirect to the profile page or show success message
-        this.profile.bio = ''; // Clear bio input
-        this.profile.logo = ''; // Clear logo input
-        this.logoPreview = null; // Clear logo preview
+
+        console.log('Profile updated:', response.data);
+        await this.fetchProfile(); // Refresh profile data
 
       } catch (error) {
         console.error('Error updating profile:', error);
@@ -203,42 +197,20 @@ async fetchReviews() {
       }
     },
 
-    // Submit response to a review
-    async submitResponse(reviewId, response) {
-      const token = localStorage.getItem('token');
-      if (!response) return; // If no response, do not submit
-
-      try {
-        this.isLoading = true;
-
-        const responseData = { response };
-        const result = await axios.put(`https://ta3eem-backend.onrender.com/api/reviews/${reviewId}`, responseData, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        console.log('Response saved successfully:', result.data);
-
-        // Update the review with the response
-        const review = this.reviews.find(r => r.id === reviewId);
-        if (review) {
-          review.response = response;  // Update the response field in the UI
-          review.responseInput = '';  // Clear the input field after saving the response
-        }
-      } catch (error) {
-        console.error('Error saving response:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
   },
 
-  created() {
-    this.fetchProfile();
-    this.fetchReviews(); // Fetch reviews as well
-  },
+  async created() {
+    await this.fetchProfile(); // Uncommented and added await
+  }
 };
 </script>
 
