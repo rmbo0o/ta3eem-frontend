@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <div class="dashboard-header">
       <h2>Manage Your Profile</h2>
-      <button @click="logout" class="btn-logout">Logout</button>
+
     </div>
 
     <!-- Profile Management Form -->
@@ -273,7 +273,7 @@ export default {
 <style scoped>
 .dashboard-container {
   max-width: 900px;
-  margin: 0 auto;
+  margin: 30px auto;
   padding: 2rem;
   background-color: #1a1a1a;
   min-height: 100vh;
