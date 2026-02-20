@@ -45,6 +45,21 @@ async submitResponse() {
       alert(`Error: ${error.response.data.message || 'Failed to submit response'}`);
     }
   }
+},
+
+// In your review submission method
+async submitReview() {
+  try {
+    const response = await axios.post('/api/reviews', {
+      owner_id: this.ownerId,
+      reviewer_name: this.reviewer_name || 'Anonymous',
+      comment: this.review_text, // Send as 'comment' not 'review_text'
+      rating: this.rating
+    });
+    // Handle success
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }
   }
 };
