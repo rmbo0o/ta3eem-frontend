@@ -94,7 +94,7 @@ export default {
       if (imagePath && imagePath.startsWith("http")) {
         return imagePath;
       }
-      return imagePath ? `http://localhost:5000${imagePath}` : this.fallbackImage;
+      return imagePath ? `https://ta3eem-backend.onrender.com${imagePath}` : this.fallbackImage;
     },
     setFallbackImage(event) {
       event.target.src = this.fallbackImage;
