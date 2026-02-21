@@ -1,5 +1,4 @@
 <template>
-  <!-- Template remains exactly the same -->
   <div class="owners-container">
     <h2 class="section-title">All Food Owners</h2>
 
@@ -9,12 +8,20 @@
         v-model="searchQuery"
         class="search-input"
         placeholder="Search owner name..."
-        @input="fetchOwners"
+        @input="debouncedSearch"
       />
     </div>
 
+    <!-- Loading Indicator -->
+    <div v-if="loading" class="text-center mt-4">
+      <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading owners...</p>
+    </div>
+
     <!-- Owner List -->
-    <div class="owners-grid">
+    <div v-else class="owners-grid">
       <div class="owner-card" v-for="owner in owners" :key="owner.id">
         <div class="card-image-wrapper">
           <img
@@ -33,8 +40,13 @@
       </div>
     </div>
 
+    <!-- No Results Found -->
+    <div v-if="!loading && owners.length === 0" class="text-center mt-4">
+      <p class="text-muted">No owners found matching "{{ searchQuery }}"</p>
+    </div>
+
     <!-- Pagination Controls -->
-    <div class="pagination-controls">
+    <div class="pagination-controls" v-if="!loading && owners.length > 0">
       <button
         class="pagination-btn"
         @click="prevPage"
@@ -50,9 +62,9 @@
 </template>
 
 <script>
-// Script section remains exactly the same
 import axios from "axios";
 import FallbackImage from "@/assets/no-image.png";
+
 export default {
   data() {
     return {
@@ -61,16 +73,46 @@ export default {
       page: 1,
       limit: 6,
       fallbackImage: FallbackImage,
+      loading: false,
+      searchTimeout: null
     };
   },
   methods: {
+    // Debounced search to avoid too many API calls
+    debouncedSearch() {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(() => {
+        this.page = 1; // Reset to first page on new search
+        this.fetchOwners();
+      }, 500); // Wait 500ms after user stops typing
+    },
+
     async fetchOwners() {
-      const apiUrl = `https://ta3eem-backend.onrender.com/api/owners?search=${encodeURIComponent(this.searchQuery)}&page=${this.page}&limit=${this.limit}`;
+      this.loading = true;
+
+      // Build the API URL with proper parameters
+      const params = new URLSearchParams();
+
+      if (this.searchQuery && this.searchQuery.trim() !== '') {
+        params.append('search', this.searchQuery.trim());
+      }
+
+      params.append('page', this.page);
+      params.append('limit', this.limit);
+
+      const apiUrl = `https://ta3eem-backend.onrender.com/api/owners?${params.toString()}`;
+
+      console.log('Fetching owners with URL:', apiUrl); // Debug log
+
       try {
         const response = await axios.get(apiUrl);
         this.owners = response.data;
+        console.log('Owners found:', this.owners.length); // Debug log
       } catch (error) {
         console.error("Error fetching owners:", error);
+        this.owners = [];
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -82,20 +124,24 @@ export default {
       if (this.page > 1) {
         this.page--;
         this.fetchOwners();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     },
 
     nextPage() {
       this.page++;
       this.fetchOwners();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
     getImageUrl(imagePath) {
-      if (imagePath && imagePath.startsWith("http")) {
+      if (!imagePath) return this.fallbackImage;
+      if (imagePath.startsWith("http")) {
         return imagePath;
       }
       return imagePath ? `https://ta3eem-backend.onrender.com${imagePath}` : this.fallbackImage;
     },
+
     setFallbackImage(event) {
       event.target.src = this.fallbackImage;
     }
@@ -107,12 +153,7 @@ export default {
 </script>
 
 <style scoped>
-/* Color Variables */
-
-
-/* Base Styles */
 .owners-container {
-  /* background-color: #ffffff; */
   padding: 2rem;
   min-height: 100vh;
   max-width: 1200px;
@@ -127,7 +168,6 @@ export default {
   font-size: 2rem;
 }
 
-/* Search Field */
 .search-container {
   max-width: 600px;
   margin: 0 auto 2rem;
@@ -146,7 +186,6 @@ export default {
   color: #e0e0e0;
 }
 
-/* Owners Grid */
 .owners-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -154,7 +193,6 @@ export default {
   margin-bottom: 2rem;
 }
 
-/* Owner Card */
 .owner-card {
   background-color: #3a4252;
   border-radius: 10px;
@@ -195,7 +233,6 @@ export default {
   font-size: 1.2rem;
 }
 
-/* Buttons */
 .view-profile-btn {
   background-color: #FFD700;
   color: #2d333f;
@@ -212,7 +249,6 @@ export default {
   background-color: #ffdf33;
 }
 
-/* Pagination */
 .pagination-controls {
   display: flex;
   justify-content: center;
@@ -246,7 +282,10 @@ export default {
   font-weight: 500;
 }
 
-/* Responsive Design */
+.spinner-border.text-warning {
+  color: #FFD700 !important;
+}
+
 @media (max-width: 768px) {
   .owners-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

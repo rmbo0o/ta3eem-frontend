@@ -1,9 +1,7 @@
 <template>
   <div class="container mt-4">
     <!-- Debug banner - remove after confirming it works -->
-    <div style="background: green; color: white; padding: 10px; margin-bottom: 10px;">
-      ✅ OwnerProfileView.vue - Owner ID: {{ ownerIdFromRoute }}
-    </div>
+
 
     <div v-if="!ownerIdFromRoute" class="text-center py-5">
       <div class="spinner-border text-warning" role="status">
