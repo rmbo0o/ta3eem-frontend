@@ -118,12 +118,12 @@ export default {
 
       const apiUrl = `https://ta3eem-backend.onrender.com/api/menu/food-items${params.toString() ? '?' + params.toString() : ''}`;
 
-      console.log('Fetching with URL:', apiUrl); // Debug log
+
 
       try {
         const response = await axios.get(apiUrl);
         this.foodItems = response.data;
-        console.log('Results:', this.foodItems.length); // Debug log
+
       } catch (error) {
         console.error("Error fetching food items:", error);
         this.foodItems = [];

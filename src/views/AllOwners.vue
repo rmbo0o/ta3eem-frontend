@@ -102,12 +102,12 @@ export default {
 
       const apiUrl = `https://ta3eem-backend.onrender.com/api/owners?${params.toString()}`;
 
-      console.log('Fetching owners with URL:', apiUrl); // Debug log
+       // Debug log
 
       try {
         const response = await axios.get(apiUrl);
         this.owners = response.data;
-        console.log('Owners found:', this.owners.length); // Debug log
+       // Debug log
       } catch (error) {
         console.error("Error fetching owners:", error);
         this.owners = [];
