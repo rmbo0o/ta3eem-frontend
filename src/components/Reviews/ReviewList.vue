@@ -1,35 +1,48 @@
 <template>
-  <div v-if="reviews.length" class="reviews-list">
-    <div v-for="review in reviews" :key="review.id" class="review-card">
-      <div class="review-header">
-        <div class="reviewer-info">
-          <strong class="reviewer-name">{{ review.reviewer_name || 'Anonymous' }}</strong>
-          <span v-if="review.rating" class="rating-badge">
-            ⭐ {{ review.rating }}/5
-          </span>
+  <div class="reviews-container">
+    <h3>Customer Reviews</h3>
+
+    <div v-if="loading" class="loading">
+      Loading reviews...
+    </div>
+
+    <div v-else-if="reviews.length === 0" class="no-reviews">
+      No reviews yet.
+    </div>
+
+    <div v-else class="reviews-list">
+      <div
+        v-for="review in reviews"
+        :key="review.id"
+        class="review-item"
+        :class="{ 'has-response': review.response_text }"
+      >
+        <!-- Review Header -->
+        <div class="review-header">
+          <strong>{{ review.reviewer_name || 'Anonymous' }}</strong>
+          <span class="review-date">{{ formatDate(review.created_at) }}</span>
         </div>
-        <span class="review-date">{{ formatDate(review.created_at) }}</span>
-      </div>
 
-      <p class="review-text">{{ review.comment }}</p>
-
-      <!-- Owner's Response - ALWAYS show if response_text exists -->
-      <div v-if="review.response_text" class="owner-response">
-        <div class="response-header">
-          <strong class="owner-label">Owner's Response:</strong>
+        <!-- Rating -->
+        <div v-if="review.rating" class="rating">
+          Rating: {{ review.rating }}/5
         </div>
-        <p class="response-text">{{ review.response_text }}</p>
-      </div>
 
-      <!-- Debug info - shows if response exists but not displaying -->
-      <div v-if="review.response_text" class="debug-success">
-        ✅ Response found: "{{ review.response_text }}"
+        <!-- Review Text -->
+        <p class="review-text">{{ review.comment }}</p>
+
+        <!-- OWNER RESPONSE - FORCED VISIBLE -->
+        <div v-if="review.response_text" class="response-section">
+          <div class="response-label">Owner's Response:</div>
+          <div class="response-content">{{ review.response_text }}</div>
+        </div>
+
+        <!-- DEBUG INFO - REMOVE LATER -->
+        <div class="debug-info">
+          Response text: "{{ review.response_text || 'empty' }}"
+        </div>
       </div>
     </div>
-  </div>
-
-  <div v-else class="no-reviews">
-    <p>No reviews yet. Be the first to review!</p>
   </div>
 </template>
 
@@ -45,38 +58,39 @@ export default {
   },
   data() {
     return {
-      reviews: []
+      reviews: [],
+      loading: true
     };
   },
-  created() {
-    this.fetchReviews();
-    // Fetch every 3 seconds to see updates (remove after fixing)
-    setInterval(() => {
-      this.fetchReviews();
-    }, 3000);
+  async created() {
+    await this.fetchReviews();
   },
   methods: {
     async fetchReviews() {
+      this.loading = true;
       try {
         console.log('Fetching reviews for owner:', this.ownerId);
         const response = await axios.get(`/reviews/${this.ownerId}`);
 
-        console.log('All reviews:', response.data);
+        console.log('API Response:', response.data);
 
-        // Sort by date (newest first)
-        this.reviews = response.data.sort((a, b) =>
-          new Date(b.created_at) - new Date(a.created_at)
-        );
+        // Store reviews
+        this.reviews = response.data;
 
-        // Log which reviews have responses
-        this.reviews.forEach(review => {
-          if (review.response_text) {
-            console.log(`✅ Review ${review.id} by ${review.reviewer_name} has response:`, review.response_text);
-          }
+        // Log each review's response status
+        this.reviews.forEach((review, index) => {
+          console.log(`Review ${index + 1}:`, {
+            id: review.id,
+            reviewer: review.reviewer_name,
+            hasResponse: !!review.response_text,
+            responseText: review.response_text
+          });
         });
 
       } catch (error) {
         console.error('Error fetching reviews:', error);
+      } finally {
+        this.loading = false;
       }
     },
     formatDate(dateString) {
@@ -84,7 +98,7 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
       });
     }
@@ -93,139 +107,101 @@ export default {
 </script>
 
 <style scoped>
+.reviews-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+}
+
 .reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1rem;
+  gap: 20px;
 }
 
-.review-card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 1.5rem;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.review-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.review-item.has-response {
+  border-left: 5px solid #FFD700;
 }
 
 .review-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.reviewer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.reviewer-name {
-  font-size: 1.2rem;
-  color: #333;
-  font-weight: 600;
-}
-
-.rating-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background-color: #FFD700;
-  color: #333;
-  padding: 0.25rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  width: fit-content;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
 }
 
 .review-date {
-  color: #999;
-  font-size: 0.9rem;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.rating {
+  color: #FFD700;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .review-text {
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-/* Owner Response Styles - HIGHLY VISIBLE */
-.owner-response {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  background-color: #fafafa;
-  border-left: 6px solid #FFD700;
-  border-radius: 0 8px 8px 0;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.response-header {
-  margin-bottom: 0.75rem;
-}
-
-.owner-label {
-  color: #FFD700;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-}
-
-.response-text {
-  color: #444;
-  margin: 0;
-  font-size: 1rem;
+  color: #333;
   line-height: 1.5;
-  padding-left: 0.5rem;
-  border-left: 2px solid #FFD700;
+  margin-bottom: 15px;
 }
 
-/* Debug styles */
-.debug-success {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
+/* Response Section - VERY VISIBLE */
+.response-section {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+}
+
+.response-label {
+  font-weight: bold;
+  color: #856404;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+  text-transform: uppercase;
+}
+
+.response-content {
+  color: #333;
+  padding: 10px;
+  background: white;
   border-radius: 4px;
-  font-size: 0.9rem;
+  border-left: 3px solid #FFD700;
+}
+
+/* Debug Info */
+.debug-info {
+  margin-top: 10px;
+  padding: 8px;
+  background: #e7f3ff;
+  border: 1px dashed #2196F3;
+  font-family: monospace;
+  font-size: 0.9em;
+  border-radius: 4px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
 }
 
 .no-reviews {
   text-align: center;
+  padding: 30px;
   color: #999;
-  padding: 3rem;
-  background-color: #f8f9fa;
+  background: #f5f5f5;
   border-radius: 8px;
-  font-size: 1.1rem;
-}
-
-/* Auto-refresh indicator */
-.auto-refresh {
-  font-size: 0.8rem;
-  color: #999;
-  text-align: right;
-  margin-top: 0.5rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .review-header {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .review-date {
-    align-self: flex-start;
-  }
-
-  .review-card {
-    padding: 1rem;
-  }
 }
 </style>
