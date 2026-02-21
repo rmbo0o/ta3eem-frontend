@@ -87,34 +87,33 @@ export default {
       }, 500); // Wait 500ms after user stops typing
     },
 
-    async fetchOwners() {
-      this.loading = true;
+async fetchOwners() {
+  this.loading = true;
 
-      // Build the API URL with proper parameters
-      const params = new URLSearchParams();
+  try {
+    const params = new URLSearchParams();
+    if (this.searchQuery) params.append('search', this.searchQuery);
+    params.append('page', this.page);
+    params.append('limit', this.limit);
 
-      if (this.searchQuery && this.searchQuery.trim() !== '') {
-        params.append('search', this.searchQuery.trim());
-      }
+    const response = await axios.get(`https://ta3eem-backend.onrender.com/api/owners?${params}`);
 
-      params.append('page', this.page);
-      params.append('limit', this.limit);
+    // Handle the new response format
+    if (response.data.owners) {
+      this.owners = response.data.owners;
+      this.totalPages = response.data.pagination.pages;
+    } else {
+      // Fallback for backward compatibility
+      this.owners = response.data;
+    }
 
-      const apiUrl = `https://ta3eem-backend.onrender.com/api/owners?${params.toString()}`;
-
-      console.log('Fetching owners with URL:', apiUrl); // Debug log
-
-      try {
-        const response = await axios.get(apiUrl);
-        this.owners = response.data;
-        console.log('Owners found:', this.owners.length); // Debug log
-      } catch (error) {
-        console.error("Error fetching owners:", error);
-        this.owners = [];
-      } finally {
-        this.loading = false;
-      }
-    },
+  } catch (error) {
+    console.error("Error fetching owners:", error);
+    this.owners = [];
+  } finally {
+    this.loading = false;
+  }
+},
 
     viewProfile(ownerId) {
       this.$router.push(`/owner/${ownerId}`);
