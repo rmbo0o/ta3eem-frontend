@@ -1,6 +1,9 @@
 <template>
   <!-- Template structure remains the same -->
   <div class="container mt-4">
+    <div style="background: green; color: white; padding: 10px; margin-bottom: 10px;">
+      ✅ USING OwnerProfileView.vue - ownerId: {{ ownerId }}
+    </div>
     <div v-if="ownerProfile">
       <!-- Enhanced Profile Header -->
       <div class="profile-header mb-5 p-4 rounded-3 shadow-sm" style="background: linear-gradient(135deg, #FFD700 0%, #FFC107 100%);">

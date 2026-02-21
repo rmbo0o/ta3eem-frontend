@@ -1,5 +1,8 @@
 <template>
   <div class="profile-view">
+     <div style="background: red; color: white; padding: 10px; margin-bottom: 10px;">
+      ❌ USING ProfileView.vue - THIS IS WRONG!
+    </div>
     <!-- Profile Card -->
     <div class="card mb-4 shadow">
       <div class="card-body text-center">
