@@ -160,6 +160,21 @@ export default {
 
     };
   },
+  watch: {
+    ownerId: {
+      immediate: true,
+      handler(newId) {
+        if (newId) {
+          console.log('Loading data for owner:', newId);
+          this.checkIfOwner();
+          this.fetchOwnerProfile();
+          this.fetchOwnerReviews();
+        } else {
+          console.log('Waiting for ownerId...');
+        }
+      }
+    }
+  },
   created() {
     console.log('OwnerProfileView created with ownerId:', this.ownerId);
     this.checkIfOwner();
@@ -183,6 +198,7 @@ export default {
       }
     },
     async fetchOwnerProfile() {
+       if (!this.ownerId) return;
       try {
         const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${this.ownerId}`);
         if (res.data.logo && !res.data.logo.startsWith('http')) {
@@ -194,6 +210,7 @@ export default {
       }
     },
     async fetchOwnerReviews() {
+      if (!this.ownerId) return;
       try {
         const res = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${this.ownerId}`);
         this.reviews = res.data;
