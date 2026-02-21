@@ -1,10 +1,18 @@
 <template>
-  <!-- Template structure remains the same -->
   <div class="container mt-4">
+    <!-- Debug banner - remove after confirming it works -->
     <div style="background: green; color: white; padding: 10px; margin-bottom: 10px;">
-      ✅ USING OwnerProfileView.vue - ownerId: {{ ownerId }}
+      ✅ OwnerProfileView.vue - Owner ID: {{ ownerIdFromRoute }}
     </div>
-    <div v-if="ownerProfile">
+
+    <div v-if="!ownerIdFromRoute" class="text-center py-5">
+      <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading owner data...</p>
+    </div>
+
+    <div v-else-if="ownerProfile">
       <!-- Enhanced Profile Header -->
       <div class="profile-header mb-5 p-4 rounded-3 shadow-sm" style="background: linear-gradient(135deg, #FFD700 0%, #FFC107 100%);">
         <div class="d-flex flex-column flex-md-row align-items-center">
@@ -22,7 +30,6 @@
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
           </div>
         </div>
-
       </div>
 
       <!-- Reviews Section with Enhanced Styling -->
@@ -49,8 +56,9 @@
             </div>
             <p class="text-muted mb-2"><small>{{ formatDate(review.created_at) }}</small></p>
             <p class="mb-2">{{ review.comment }}</p>
-            <p v-if="review.response_text " class="owner-response p-2 rounded" style="background-color: rgba(255, 215, 0, 0.1);">
-              <strong class="text-dark">Owner Response:</strong> {{ review.response_text  }}
+            <!-- Owner Response - Now correctly displays -->
+            <p v-if="review.response_text" class="owner-response p-2 rounded" style="background-color: rgba(255, 215, 0, 0.1);">
+              <strong class="text-dark">Owner Response:</strong> {{ review.response_text }}
             </p>
           </div>
         </div>
@@ -59,69 +67,66 @@
         </div>
       </div>
 
-      <!-- Enhanced Review Form -->
-<div v-if="!isOwner" class="review-form p-4 mb-4 rounded-3 shadow-sm" style="background-color: #f8f9fa;">
-  <h4 class="mb-3 text-center">Share Your Experience</h4>
-  <form @submit.prevent="submitReview">
-    <!-- Name Field -->
-    <div class="mb-3">
-      <label for="reviewer_name" class="form-label">Your Name</label>
-      <input
-        id="reviewer_name"
-        v-model="newReview.reviewer_name"
-        class="form-control"
-        :class="{ 'is-invalid': errors.reviewer_name }"
-        placeholder="Enter your name"
-      />
-      <div v-if="errors.reviewer_name" class="invalid-feedback">
-        {{ errors.reviewer_name }}
-      </div>
-    </div>
+      <!-- Review Form for non-owners -->
+      <div v-if="!isOwner" class="review-form p-4 mb-4 rounded-3 shadow-sm" style="background-color: #f8f9fa;">
+        <h4 class="mb-3 text-center">Share Your Experience</h4>
+        <form @submit.prevent="submitReview">
+          <div class="mb-3">
+            <label for="reviewer_name" class="form-label">Your Name</label>
+            <input
+              id="reviewer_name"
+              v-model="newReview.reviewer_name"
+              class="form-control"
+              :class="{ 'is-invalid': errors.reviewer_name }"
+              placeholder="Enter your name"
+            />
+            <div v-if="errors.reviewer_name" class="invalid-feedback">
+              {{ errors.reviewer_name }}
+            </div>
+          </div>
 
-    <!-- Comment Field -->
-    <div class="mb-3">
-      <label for="comment" class="form-label">Your Review</label>
-      <textarea
-        id="comment"
-        v-model="newReview.comment"
-        class="form-control"
-        :class="{ 'is-invalid': errors.comment }"
-        rows="3"
-        placeholder="Share your thoughts about this restaurant..."
-      ></textarea>
-      <div v-if="errors.comment" class="invalid-feedback">
-        {{ errors.comment }}
-      </div>
-      <small class="text-muted">Minimum 10 characters required</small>
-    </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">Your Review</label>
+            <textarea
+              id="comment"
+              v-model="newReview.comment"
+              class="form-control"
+              :class="{ 'is-invalid': errors.comment }"
+              rows="3"
+              placeholder="Share your thoughts about this restaurant..."
+            ></textarea>
+            <div v-if="errors.comment" class="invalid-feedback">
+              {{ errors.comment }}
+            </div>
+            <small class="text-muted">Minimum 10 characters required</small>
+          </div>
 
-    <!-- Rating Field -->
-    <div class="mb-3">
-      <label class="form-label">Your Rating</label>
-      <div class="star-rating">
-        <i
-          v-for="n in 5"
-          :key="n"
-          class="fa-star fa-lg me-1"
-          :class="n <= newReview.rating ? 'fas text-warning' : 'far text-muted'"
-          @click="newReview.rating = n"
-        ></i>
-      </div>
-      <div v-if="errors.rating" class="invalid-feedback d-block">
-        {{ errors.rating }}
-      </div>
-    </div>
+          <div class="mb-3">
+            <label class="form-label">Your Rating</label>
+            <div class="star-rating">
+              <i
+                v-for="n in 5"
+                :key="n"
+                class="fa-star fa-lg me-1"
+                :class="n <= newReview.rating ? 'fas text-warning' : 'far text-muted'"
+                @click="newReview.rating = n"
+              ></i>
+            </div>
+            <div v-if="errors.rating" class="invalid-feedback d-block">
+              {{ errors.rating }}
+            </div>
+          </div>
 
-    <button type="submit" class="btn w-100" style="background-color: #FFD700; color: #333; border: none;">
-      Submit Review
-    </button>
-  </form>
-</div>
+          <button type="submit" class="btn w-100" style="background-color: #FFD700; color: #333; border: none;">
+            Submit Review
+          </button>
+        </form>
+      </div>
 
-      <!-- Enhanced Menu Button -->
+      <!-- Menu Button -->
       <div class="text-center mt-4">
         <router-link
-          :to="`/owner/${ownerId}/menu`"
+          :to="`/owner/${ownerIdFromRoute}/menu`"
           class="btn btn-lg px-4"
           style="background-color: #333; color: #FFD700;"
         >
@@ -140,11 +145,10 @@
 </template>
 
 <script>
-// Script section remains exactly the same
 import axios from '@/utils/api';
 
 export default {
-  props: ['ownerId'],
+  // No props needed - we'll use $route.params.id directly
   data() {
     return {
       ownerProfile: null,
@@ -160,11 +164,17 @@ export default {
         rating: ''
       },
       isOwner: false,
-
     };
   },
+  computed: {
+    // Get owner ID directly from the route params
+    ownerIdFromRoute() {
+      return this.$route.params.id;
+    }
+  },
   watch: {
-    ownerId: {
+    // Watch for changes in the route ID
+    ownerIdFromRoute: {
       immediate: true,
       handler(newId) {
         if (newId) {
@@ -172,38 +182,35 @@ export default {
           this.checkIfOwner();
           this.fetchOwnerProfile();
           this.fetchOwnerReviews();
-        } else {
-          console.log('Waiting for ownerId...');
         }
       }
     }
-  },
-  created() {
-    console.log('OwnerProfileView created with ownerId:', this.ownerId);
-    this.checkIfOwner();
-    this.fetchOwnerProfile();
-    this.fetchOwnerReviews();
   },
   methods: {
     getLogoUrl(path) {
       if (!path) return '';
       return path.startsWith('http') ? path : `https://ta3eem-backend.onrender.com/${path}`;
     },
+
     checkIfOwner() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
       try {
         const decoded = JSON.parse(atob(token.split('.')[1]));
-        this.isOwner = decoded.id == this.ownerId;
+        this.isOwner = decoded.id == this.ownerIdFromRoute;
       } catch {
         this.isOwner = false;
       }
     },
+
     async fetchOwnerProfile() {
-       if (!this.ownerId) return;
+      const id = this.ownerIdFromRoute;
+      if (!id) return;
+
       try {
-        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${this.ownerId}`);
+        console.log('Fetching profile for owner:', id);
+        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${id}`);
         if (res.data.logo && !res.data.logo.startsWith('http')) {
           res.data.logo = `https://ta3eem-backend.onrender.com/${res.data.logo.startsWith('/') ? res.data.logo.slice(1) : res.data.logo}`;
         }
@@ -212,15 +219,21 @@ export default {
         console.error('Error fetching profile:', err);
       }
     },
+
     async fetchOwnerReviews() {
-      if (!this.ownerId) return;
+      const id = this.ownerIdFromRoute;
+      if (!id) return;
+
       try {
-        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${this.ownerId}`);
+        console.log('Fetching reviews for owner:', id);
+        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${id}`);
         this.reviews = res.data;
+        console.log('Reviews loaded:', this.reviews);
       } catch (err) {
         console.error('Error fetching reviews:', err);
       }
     },
+
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -228,7 +241,8 @@ export default {
         day: 'numeric'
       });
     },
- async submitReview() {
+
+    async submitReview() {
       // Reset errors
       this.errors = {
         reviewer_name: '',
@@ -258,7 +272,7 @@ export default {
 
       try {
         const response = await axios.post('https://ta3eem-backend.onrender.com/api/reviews', {
-          owner_id: this.ownerId,
+          owner_id: this.ownerIdFromRoute,
           reviewer_name: this.newReview.reviewer_name,
           comment: this.newReview.comment,
           rating: this.newReview.rating
@@ -278,6 +292,7 @@ export default {
         this.notify(err.response?.data?.message || 'Failed to submit review');
       }
     },
+
     notify(message) {
       const toast = document.createElement('div');
       toast.innerText = message;
@@ -285,16 +300,15 @@ export default {
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     },
-
   },
 };
 </script>
 
 <style scoped>
-/* Enhanced Styles */
 .container {
   padding-top: 50px;
 }
+
 .profile-header {
   border: 1px solid rgba(255, 215, 0, 0.3);
 }
@@ -326,6 +340,7 @@ export default {
 
 .star-rating i {
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .star-rating i:hover {
@@ -347,7 +362,6 @@ export default {
 }
 
 .btn-view-menu {
-
   background-color: #333;
   color: #FFD700;
   border: none;
@@ -362,7 +376,7 @@ export default {
   background-color: #555;
   color: #FFC107;
 }
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
   .profile-header {
     text-align: center;
