@@ -41,6 +41,7 @@ const routes = [
     path: '/owner/:id',
     name: 'OwnerProfileView',
     component: () => import('@/views/OwnerProfileView.vue'),
+    props: true,
     meta: { requiresAuth: false } // public route
   },
   {

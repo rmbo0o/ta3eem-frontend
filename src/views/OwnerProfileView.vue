@@ -46,8 +46,8 @@
             </div>
             <p class="text-muted mb-2"><small>{{ formatDate(review.created_at) }}</small></p>
             <p class="mb-2">{{ review.comment }}</p>
-            <p v-if="review.response" class="owner-response p-2 rounded" style="background-color: rgba(255, 215, 0, 0.1);">
-              <strong class="text-dark">Owner Response:</strong> {{ review.response }}
+            <p v-if="review.response_text " class="owner-response p-2 rounded" style="background-color: rgba(255, 215, 0, 0.1);">
+              <strong class="text-dark">Owner Response:</strong> {{ review.response_text  }}
             </p>
           </div>
         </div>
@@ -141,6 +141,7 @@
 import axios from '@/utils/api';
 
 export default {
+  props: ['ownerId'],
   data() {
     return {
       ownerProfile: null,
@@ -156,10 +157,11 @@ export default {
         rating: ''
       },
       isOwner: false,
-      ownerId: this.$route.params.id,
+
     };
   },
   created() {
+    console.log('OwnerProfileView created with ownerId:', this.ownerId);
     this.checkIfOwner();
     this.fetchOwnerProfile();
     this.fetchOwnerReviews();
