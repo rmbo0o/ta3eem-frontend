@@ -20,6 +20,22 @@
           ></textarea>
         </div>
 
+                <!-- NEW: Instagram Field -->
+        <div class="form-group">
+          <label for="instagram">Instagram Account</label>
+          <div class="instagram-input-wrapper">
+            <span class="instagram-prefix">@</span>
+            <input
+              id="instagram"
+              v-model="profile.instagram"
+              type="text"
+              class="form-control instagram-input"
+              placeholder="username (e.g., foodie_owner)"
+            />
+          </div>
+          <small class="text-muted">Enter your Instagram username without @</small>
+        </div>
+
         <!-- Image Upload Section -->
         <div class="form-group">
           <label for="logo">Logo (Image Upload)</label>
@@ -118,6 +134,7 @@ export default {
   data() {
     return {
       profile: {
+        instagram: '',
         bio: '',
         logo: null,
       },
@@ -156,6 +173,7 @@ export default {
         console.log('Profile response:', response.data);
 
         this.profile.bio = response.data.bio || '';
+        this.profile.instagram = response.data.instagram || '';
         this.profile.logo = response.data.logo || null;
         this.logoPreview = response.data.logo || null;
 
@@ -197,6 +215,7 @@ export default {
       this.isLoading = true;
 
       const formData = new FormData();
+      formData.append('instagram', this.profile.instagram);
       formData.append('bio', this.profile.bio);
       if (this.profile.logo) {
         formData.append('logo', this.profile.logo);
@@ -271,6 +290,40 @@ export default {
 </script>
 
 <style scoped>
+  /* Add these new styles */
+.instagram-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.instagram-prefix {
+  background-color: #444;
+  color: #FFD700;
+  padding: 0.75rem;
+  font-weight: bold;
+  border-right: 1px solid #555;
+}
+
+.instagram-input {
+  border: none !important;
+  border-radius: 0 !important;
+  background-color: #333 !important;
+}
+
+.instagram-input:focus {
+  box-shadow: none !important;
+}
+
+.text-muted {
+  color: #999 !important;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
 .dashboard-container {
   max-width: 900px;
   margin: 0 auto;

@@ -26,6 +26,18 @@
           <div class="text-center text-md-start">
             <h2 class="mb-2 text-dark">{{ ownerProfile.username }}'s Profile</h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
+            <div v-if="ownerProfile.instagram" class="instagram-link mt-3">
+              <a
+                :href="`https://instagram.com/${ownerProfile.instagram}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm"
+                style="background-color: #E1306C; color: white;"
+              >
+                <i class="fab fa-instagram me-2"></i>
+                @{{ ownerProfile.instagram }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -303,6 +315,17 @@ export default {
 </script>
 
 <style scoped>
+  /* Add Instagram styles */
+.instagram-link a {
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.instagram-link a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
 .container {
   padding-top: 50px;
 }
