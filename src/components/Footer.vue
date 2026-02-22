@@ -37,9 +37,9 @@
         <div class="footer-section">
           <h5 class="footer-heading">Contact Us</h5>
           <ul class="contact-info">
-            <li><i class="fas fa-map-marker-alt"></i> 123 Foodie Street, City</li>
+            <li><i class="fas fa-map-marker-alt"></i> Alhadah Street, sna'a City</li>
             <li><i class="fas fa-phone"></i> +1 (123) 456-7890</li>
-            <li><i class="fas fa-envelope"></i> info@foodie.com</li>
+            <li><i class="fas fa-envelope"></i> info@ta3eem.com</li>
           </ul>
         </div>
 
@@ -55,7 +55,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p class="copyright">&copy; {{ currentYear }} Foodie. All rights reserved.</p>
+        <p class="copyright">&copy; {{ currentYear }} Ta3eem All rights reserved.</p>
         <!-- <div class="legal-links">
           <router-link to="/privacy">Privacy Policy</router-link>
           <router-link to="/terms">Terms of Service</router-link>
