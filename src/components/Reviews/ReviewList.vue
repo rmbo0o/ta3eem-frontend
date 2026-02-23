@@ -1,13 +1,13 @@
 <template>
   <div class="reviews-container">
-    <h3>Customer Reviews</h3>
+    <h3>تقييمات العملاء</h3>
 
     <div v-if="loading" class="loading">
-      Loading reviews...
+      جاري تحميل التقييمات...
     </div>
 
     <div v-else-if="reviews.length === 0" class="no-reviews">
-      No reviews yet.
+      لا توجد تقييمات بعد
     </div>
 
     <div v-else class="reviews-list">
@@ -19,27 +19,22 @@
       >
         <!-- Review Header -->
         <div class="review-header">
-          <strong>{{ review.reviewer_name || 'Anonymous' }}</strong>
+          <strong>{{ review.reviewer_name || 'زائر' }}</strong>
           <span class="review-date">{{ formatDate(review.created_at) }}</span>
         </div>
 
         <!-- Rating -->
         <div v-if="review.rating" class="rating">
-          Rating: {{ review.rating }}/5
+          التقييم: {{ review.rating }}/5
         </div>
 
         <!-- Review Text -->
         <p class="review-text">{{ review.comment }}</p>
 
-        <!-- OWNER RESPONSE - FORCED VISIBLE -->
+        <!-- Owner Response -->
         <div v-if="review.response_text" class="response-section">
-          <div class="response-label">Owner's Response:</div>
+          <div class="response-label">رد صاحب المطعم:</div>
           <div class="response-content">{{ review.response_text }}</div>
-        </div>
-
-        <!-- DEBUG INFO - REMOVE LATER -->
-        <div class="debug-info">
-          Response text: "{{ review.response_text || 'empty' }}"
         </div>
       </div>
     </div>
@@ -69,26 +64,10 @@ export default {
     async fetchReviews() {
       this.loading = true;
       try {
-        console.log('Fetching reviews for owner:', this.ownerId);
         const response = await axios.get(`/reviews/${this.ownerId}`);
-
-        console.log('API Response:', response.data);
-
-        // Store reviews
         this.reviews = response.data;
-
-        // Log each review's response status
-        this.reviews.forEach((review, index) => {
-          console.log(`Review ${index + 1}:`, {
-            id: review.id,
-            reviewer: review.reviewer_name,
-            hasResponse: !!review.response_text,
-            responseText: review.response_text
-          });
-        });
-
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error('خطأ في جلب التقييمات:', error);
       } finally {
         this.loading = false;
       }
@@ -96,9 +75,9 @@ export default {
     formatDate(dateString) {
       if (!dateString) return '';
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('ar-SA', {
         year: 'numeric',
-        month: 'short',
+        month: 'long',
         day: 'numeric'
       });
     }
@@ -111,6 +90,14 @@ export default {
   padding: 20px;
   background: white;
   border-radius: 8px;
+  direction: rtl;
+  text-align: right;
+}
+
+.reviews-container h3 {
+  font-family: 'Cairo', sans-serif;
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
 .reviews-list {
@@ -127,7 +114,8 @@ export default {
 }
 
 .review-item.has-response {
-  border-left: 5px solid #FFD700;
+  border-right: 5px solid #FFD700;
+  border-left: none;
 }
 
 .review-header {
@@ -138,24 +126,31 @@ export default {
   border-bottom: 1px solid #eee;
 }
 
+.review-header strong {
+  font-family: 'Cairo', sans-serif;
+  color: #333;
+}
+
 .review-date {
   color: #666;
   font-size: 0.9em;
+  font-family: 'Cairo', sans-serif;
 }
 
 .rating {
   color: #FFD700;
   font-weight: bold;
   margin-bottom: 10px;
+  font-family: 'Cairo', sans-serif;
 }
 
 .review-text {
   color: #333;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-bottom: 15px;
+  font-family: 'Cairo', sans-serif;
 }
 
-/* Response Section - VERY VISIBLE */
 .response-section {
   margin-top: 15px;
   padding: 15px;
@@ -169,7 +164,7 @@ export default {
   color: #856404;
   margin-bottom: 8px;
   font-size: 0.95em;
-  text-transform: uppercase;
+  font-family: 'Cairo', sans-serif;
 }
 
 .response-content {
@@ -177,24 +172,16 @@ export default {
   padding: 10px;
   background: white;
   border-radius: 4px;
-  border-left: 3px solid #FFD700;
-}
-
-/* Debug Info */
-.debug-info {
-  margin-top: 10px;
-  padding: 8px;
-  background: #e7f3ff;
-  border: 1px dashed #2196F3;
-  font-family: monospace;
-  font-size: 0.9em;
-  border-radius: 4px;
+  border-right: 3px solid #FFD700;
+  border-left: none;
+  font-family: 'Cairo', sans-serif;
 }
 
 .loading {
   text-align: center;
   padding: 20px;
   color: #666;
+  font-family: 'Cairo', sans-serif;
 }
 
 .no-reviews {
@@ -203,5 +190,6 @@ export default {
   color: #999;
   background: #f5f5f5;
   border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
 }
 </style>

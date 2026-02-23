@@ -1,10 +1,10 @@
 <template>
   <div class="featured-profiles-container">
-    <h2 class="section-title">Featured Profiles</h2>
+    <h2 class="section-title">أصحاب المطاعم المميزين</h2>
 
     <div v-if="loading" class="loading-indicator">
       <div class="spinner"></div>
-      <p>Loading profiles...</p>
+      <p>جاري تحميل الملفات الشخصية...</p>
     </div>
 
     <div class="profiles-grid">
@@ -17,22 +17,22 @@
           <img
             :src="getImageUrl(profile.logo)"
             class="card-image"
-            alt="Profile Image"
+            alt="صورة الملف الشخصي"
             @error="setFallbackImage($event)"
           />
         </div>
         <div class="card-content">
           <h3 class="profile-name">{{ profile.username }}</h3>
           <p class="info-text">
-            <span>Average Rating: </span>
-            <span class="gold-accent">{{ profile.average_rating ? parseFloat(profile.average_rating).toFixed(1) : "N/A" }}</span>
+            <span>متوسط التقييم: </span>
+            <span class="gold-accent">{{ profile.average_rating ? parseFloat(profile.average_rating).toFixed(1) : "لا يوجد" }}</span>
           </p>
           <p class="info-text">
-            <span>Total Reviews: </span>
+            <span>عدد التقييمات: </span>
             <span class="gold-accent">{{ profile.total_reviews || 0 }}</span>
           </p>
           <button class="view-profile-btn" @click="viewProfile(profile.id)">
-            VIEW PROFILE
+            عرض الملف الشخصي
           </button>
         </div>
       </div>
@@ -40,7 +40,7 @@
 
     <div class="see-more-container">
       <button class="see-more-btn" @click="viewAllProfiles">
-        See More Profiles
+        مشاهدة المزيد
       </button>
     </div>
   </div>
@@ -65,7 +65,7 @@ export default {
         const response = await axios.get("https://ta3eem-backend.onrender.com/api/profiles/featured");
         this.featuredProfiles = response.data.slice(0, 3);
       } catch (error) {
-        console.error("Error fetching featured profiles:", error);
+        console.error("خطأ في جلب الملفات المميزة:", error);
       } finally {
         this.loading = false;
       }
@@ -93,11 +93,12 @@ export default {
 </script>
 
 <style scoped>
-/* Container - No background color */
 .featured-profiles-container {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  direction: rtl;
+  text-align: right;
 }
 
 .section-title {
@@ -105,12 +106,17 @@ export default {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 2rem;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
 }
 
-/* Loading Indicator */
 .loading-indicator {
   text-align: center;
   color: #2d333f;
+}
+
+.loading-indicator p {
+  font-family: 'Cairo', sans-serif;
 }
 
 .spinner {
@@ -128,7 +134,6 @@ export default {
   100% { transform: rotate(360deg); }
 }
 
-/* Profiles Grid - Equal height cards */
 .profiles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -136,13 +141,12 @@ export default {
   justify-items: center;
 }
 
-/* Profile Card - Fixed size with background */
 .profile-card {
   background-color: #3a4252;
   border-radius: 8px;
   overflow: hidden;
   width: 300px;
-  height: 400px; /* Fixed height */
+  height: 400px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -175,17 +179,20 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  text-align: right;
 }
 
 .profile-name {
   color: white;
   margin-bottom: 1rem;
   font-size: 1.2rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .info-text {
   color: #e0e0e0;
   margin-bottom: 0.5rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .gold-accent {
@@ -193,7 +200,6 @@ export default {
   font-weight: 600;
 }
 
-/* Buttons */
 .view-profile-btn {
   background-color: #FFD700;
   color: #2d333f;
@@ -203,8 +209,9 @@ export default {
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: auto; /* Pushes button to bottom */
+  margin-top: auto;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .view-profile-btn:hover {
@@ -225,6 +232,7 @@ export default {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .see-more-btn:hover {
@@ -232,18 +240,17 @@ export default {
   color: white;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .profiles-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
-}
 
-@media (max-width: 576px) {
   .section-title {
     font-size: 1.5rem;
   }
+}
 
+@media (max-width: 576px) {
   .profile-card {
     width: 100%;
     max-width: 300px;

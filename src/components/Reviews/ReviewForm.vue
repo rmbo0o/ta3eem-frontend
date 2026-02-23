@@ -3,10 +3,11 @@
     <textarea
       v-model="response"
       class="form-control"
-      placeholder="Type your response here..."
+      placeholder="اكتب ردك هنا..."
+      rows="3"
       required
     ></textarea>
-    <button @click="submitResponse" class="btn btn-primary mt-2">Submit Response</button>
+    <button @click="submitResponse" class="btn btn-primary mt-2">إرسال الرد</button>
   </div>
 </template>
 
@@ -14,53 +15,63 @@
 import axios from '@/utils/api';
 
 export default {
-  props: ['reviewId'], // Review ID to respond to
+  props: ['reviewId'],
   data() {
     return {
       response: ''
     };
   },
   methods: {
-// async submitResponse() {
-//   const token = localStorage.getItem('token');
-//   try {
-//     // ✅ CORRECT: Use PUT request with review ID in URL
-//     const response = await axios.put(
-//       `https://ta3eem-backend.onrender.com/api/reviews/${this.reviewId}`,
-//       { response_text: this.response },  // Changed from 'response' to 'response_text'
-//       {
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//           'Content-Type': 'application/json'
-//         }
-//       }
-//     );
-//     console.log('Response added:', response.data);
-//     this.response = '';  // Clear input after submission
-//     // Optionally emit an event to refresh the reviews list
-//     this.$emit('response-submitted');
-//   } catch (error) {
-//     console.error('Error submitting response:', error);
-//     if (error.response) {
-//       alert(`Error: ${error.response.data.message || 'Failed to submit response'}`);
-//     }
-//   }
-// },
+    async submitResponse() {
+      const token = localStorage.getItem('token');
+      if (!this.response.trim()) {
+        alert('الرجاء كتابة الرد');
+        return;
+      }
 
-// In your review submission method
-async submitReview() {
-  try {
-    const response = await axios.post('/api/reviews', {
-      owner_id: this.ownerId,
-      reviewer_name: this.reviewer_name || 'Anonymous',
-      comment: this.review_text, // Send as 'comment' not 'review_text'
-      rating: this.rating
-    });
-    // Handle success
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
+      try {
+        const response = await axios.put(
+          `https://ta3eem-backend.onrender.com/api/reviews/${this.reviewId}`,
+          { response_text: this.response },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        console.log('تم إضافة الرد:', response.data);
+        this.response = '';
+        this.$emit('response-submitted');
+        alert('تم إرسال الرد بنجاح');
+      } catch (error) {
+        console.error('خطأ في إرسال الرد:', error);
+        alert(error.response?.data?.message || 'فشل إرسال الرد');
+      }
+    }
   }
 };
 </script>
+
+<style scoped>
+.form-group {
+  text-align: right;
+  direction: rtl;
+}
+
+.form-control {
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
+}
+
+.btn-primary {
+  background-color: #333;
+  border-color: #333;
+  font-family: 'Cairo', sans-serif;
+}
+
+.btn-primary:hover {
+  background-color: #555;
+  border-color: #555;
+}
+</style>

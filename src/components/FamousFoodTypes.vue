@@ -1,7 +1,7 @@
 <template>
   <div class="hero-section">
     <div class="hero-content">
-      <h2 class="mb-3 text-center">Famous Food Types</h2>
+      <h2 class="mb-3 text-center">أشهر أنواع الأكل</h2>
 
       <!-- Search and Filters -->
       <div class="row mb-4">
@@ -9,7 +9,7 @@
           <input
             v-model="searchType"
             class="form-control"
-            placeholder="Search food type (e.g., Mandi, Salad, Pizza)"
+            placeholder="ابحث عن نوع الأكل (مثل: مندي، سلطة، بيتزا)"
             @keyup.enter="handleSearch"
           />
         </div>
@@ -17,7 +17,7 @@
           <input
             v-model.number="minPrice"
             class="form-control"
-            placeholder="Min Price"
+            placeholder="أقل سعر"
             type="number"
             @keyup.enter="handleSearch"
           />
@@ -26,7 +26,7 @@
           <input
             v-model.number="maxPrice"
             class="form-control"
-            placeholder="Max Price"
+            placeholder="أعلى سعر"
             type="number"
             @keyup.enter="handleSearch"
           />
@@ -35,15 +35,15 @@
 
       <!-- Search and Clear Buttons -->
       <div class="d-flex justify-content-center mb-3">
-        <button class="btn btn-primary me-2" @click="handleSearch">Search</button>
-        <button class="btn btn-clear btn-outline-primary me-2" @click="clearFilters">Clear</button>
+        <button class="btn btn-primary me-2" @click="handleSearch">بحث</button>
+        <button class="btn btn-clear btn-outline-primary me-2" @click="clearFilters">مسح</button>
       </div>
 
       <div class="d-flex flex-wrap justify-content-center mb-4">
         <button
           class="btn btn-outline-primary mb-2"
           @click="fetchAllFoodItems">
-          See All
+          عرض الكل
         </button>
       </div>
     </div>
@@ -53,12 +53,12 @@
     <!-- Loading Indicator -->
     <div v-if="loading" class="text-center mt-4">
       <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2">Loading food items...</p>
+      <p class="mt-2">جاري تحميل الأصناف...</p>
     </div>
 
     <!-- No Results Found -->
     <div v-if="foodItems.length === 0 && !loading" class="text-center mt-4">
-      <p class="text-muted">No food items found. Try another type or adjust the price range.</p>
+      <p class="text-muted">لم يتم العثور على أصناف. جرب نوع آخر أو غير نطاق السعر.</p>
     </div>
 
     <!-- Food Items List -->
@@ -69,12 +69,12 @@
           <div class="card-body">
             <h5 class="card-title">{{ item.food_name }}</h5>
             <p class="card-text">{{ item.description }}</p>
-            <p class="card-text"><strong>Price:</strong> ${{ formatPrice(item.price) }}</p>
+            <p class="card-text"><strong>السعر:</strong> {{ formatPrice(item.price) }} ر.س</p>
             <p class="card-text">
-              <strong>Owner:</strong> {{ item.owner_name || 'Unknown' }}
+              <strong>صاحب المطعم:</strong> {{ item.owner_name || 'غير معروف' }}
             </p>
             <button class="btn btn-primary w-100" @click="viewOwnerMenu(item.owner_id)">
-              View Full Menu
+              عرض القائمة الكاملة
             </button>
           </div>
         </div>
@@ -94,14 +94,13 @@ export default {
       maxPrice: null,
       foodItems: [],
       loading: false,
-      popularTypes: ["Mandi", "Salad", "Pizza", "Burger", "Pasta", "Drinks"],
+      popularTypes: ["مندي", "سلطة", "بيتزا", "برجر", "باستا", "مشروبات"],
     };
   },
   methods: {
     async fetchFoodItems() {
       this.loading = true;
 
-      // Build query parameters
       const params = new URLSearchParams();
 
       if (this.searchType && this.searchType.trim() !== '') {
@@ -118,20 +117,16 @@ export default {
 
       const apiUrl = `https://ta3eem-backend.onrender.com/api/menu/food-items${params.toString() ? '?' + params.toString() : ''}`;
 
-
-
       try {
         const response = await axios.get(apiUrl);
         this.foodItems = response.data;
-
       } catch (error) {
-        console.error("Error fetching food items:", error);
+        console.error("خطأ في جلب الأصناف:", error);
         this.foodItems = [];
       } finally {
         this.loading = false;
       }
 
-      // Scroll to results
       setTimeout(() => {
         window.scrollBy({
           top: 500,
@@ -142,8 +137,6 @@ export default {
 
     async fetchAllFoodItems() {
       this.loading = true;
-
-      // Clear search but keep price filters
       this.searchType = "";
 
       const params = new URLSearchParams();
@@ -162,7 +155,7 @@ export default {
         const response = await axios.get(apiUrl);
         this.foodItems = response.data;
       } catch (error) {
-        console.error("Error fetching all food items:", error);
+        console.error("خطأ في جلب جميع الأصناف:", error);
         this.foodItems = [];
       } finally {
         this.loading = false;
@@ -191,7 +184,7 @@ export default {
       if (ownerId) {
         this.$router.push(`/owner/${ownerId}/menu`);
       } else {
-        console.error("Owner ID is missing for this item.");
+        console.error("معرف صاحب المطعم مفقود");
       }
     },
 
@@ -214,6 +207,8 @@ export default {
 <style scoped>
 .container {
   max-width: 900px;
+  direction: rtl;
+  text-align: right;
 }
 
 .hero-section {
@@ -226,7 +221,7 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
-  text-align: left;
+  text-align: right;
   position: relative;
   color: #fff;
   padding: 0 5%;
@@ -238,6 +233,11 @@ export default {
   padding-top: 80px;
 }
 
+.hero-content h2 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+}
+
 .card {
   transition: all 0.3s ease;
   border: none;
@@ -246,6 +246,7 @@ export default {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   color: #333;
+  text-align: right;
 }
 
 .card:hover {
@@ -268,6 +269,12 @@ export default {
   font-weight: 600;
   margin-bottom: 0.75rem;
   color: #222;
+  font-family: 'Cairo', sans-serif;
+}
+
+.card-text {
+  font-family: 'Cairo', sans-serif;
+  line-height: 1.6;
 }
 
 .btn-primary {
@@ -275,6 +282,7 @@ export default {
   border-color: #333;
   margin-top: 1rem;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-primary:hover {
@@ -289,6 +297,7 @@ export default {
 .btn-outline-primary {
   color: #333;
   border-color: #333;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-outline-primary:hover {
@@ -305,6 +314,11 @@ export default {
 @media (max-width: 768px) {
   .card {
     margin-bottom: 1.5rem;
+  }
+
+  .hero-section {
+    height: 60vh;
+    min-height: 500px;
   }
 }
 </style>
