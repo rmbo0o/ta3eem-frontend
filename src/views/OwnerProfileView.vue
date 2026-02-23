@@ -27,18 +27,26 @@
           <div class="text-center text-md-start">
             <h2 class="mb-2 text-dark">{{ ownerProfile.username }}'s Profile</h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
-            <div v-if="ownerProfile.instagram" class="instagram-link mt-3">
-              <a
-                :href="`https://instagram.com/${ownerProfile.instagram}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-sm"
-                style="background-color: #E1306C; color: white;"
-              >
-                <i class="fab fa-instagram me-2"></i>
-                @{{ ownerProfile.instagram }}
-              </a>
-            </div>
+<!-- REPLACE YOUR CURRENT INSTAGRAM SECTION WITH THIS -->
+<div style="margin-top: 20px; padding: 15px; border: 3px solid red; background-color: #ffeeee;">
+  <h4 style="color: black;">🔴 INSTAGRAM DEBUG ZONE</h4>
+  <p style="color: black;"><strong>Value of ownerProfile.instagram:</strong> "{{ ownerProfile.instagram }}"</p>
+  <p style="color: black;"><strong>Condition result (v-if):</strong> {{ ownerProfile.instagram ? 'TRUE 👍' : 'FALSE 👎' }}</p>
+  <p style="color: black;"><strong>Type of value:</strong> {{ typeof ownerProfile.instagram }}</p>
+
+  <!-- Force display if value exists but condition fails -->
+  <div v-if="ownerProfile.instagram" style="margin-top: 10px; padding: 10px; background-color: #ccffcc;">
+    ✅ V-IF CONDITION PASSED - This should show.
+    <br>
+    <a :href="'https://instagram.com/' + ownerProfile.instagram" target="_blank" style="color: blue;">
+      @{{ ownerProfile.instagram }}
+    </a>
+  </div>
+
+  <div v-else style="margin-top: 10px; padding: 10px; background-color: #ffcccc;">
+    ❌ V-IF CONDITION FAILED - This should NOT show if data is present.
+  </div>
+</div>
           </div>
         </div>
       </div>
