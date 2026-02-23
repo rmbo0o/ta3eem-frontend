@@ -28,25 +28,18 @@
             <h2 class="mb-2 text-dark">{{ ownerProfile.username }}'s Profile</h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
 <!-- REPLACE YOUR CURRENT INSTAGRAM SECTION WITH THIS -->
-<div style="margin-top: 20px; padding: 15px; border: 3px solid red; background-color: #ffeeee;">
-  <h4 style="color: black;">🔴 INSTAGRAM DEBUG ZONE</h4>
-  <p style="color: black;"><strong>Value of ownerProfile.instagram:</strong> "{{ ownerProfile.instagram }}"</p>
-  <p style="color: black;"><strong>Condition result (v-if):</strong> {{ ownerProfile.instagram ? 'TRUE 👍' : 'FALSE 👎' }}</p>
-  <p style="color: black;"><strong>Type of value:</strong> {{ typeof ownerProfile.instagram }}</p>
-
-  <!-- Force display if value exists but condition fails -->
-  <div v-if="ownerProfile.instagram" style="margin-top: 10px; padding: 10px; background-color: #ccffcc;">
-    ✅ V-IF CONDITION PASSED - This should show.
-    <br>
-    <a :href="'https://instagram.com/' + ownerProfile.instagram" target="_blank" style="color: blue;">
-      @{{ ownerProfile.instagram }}
-    </a>
-  </div>
-
-  <div v-else style="margin-top: 10px; padding: 10px; background-color: #ffcccc;">
-    ❌ V-IF CONDITION FAILED - This should NOT show if data is present.
-  </div>
-</div>
+    <div v-if="instagramDisplay" class="instagram-link mt-3">
+      <a
+        :href="`https://instagram.com/${instagramDisplay}`"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-sm"
+        style="background-color: #E1306C; color: white;"
+      >
+        <i class="fab fa-instagram me-2"></i>
+        @{{ instagramDisplay }}
+      </a>
+    </div>
           </div>
         </div>
       </div>
@@ -189,7 +182,10 @@ export default {
     // Get owner ID directly from the route params
     ownerIdFromRoute() {
       return this.$route.params.id;
-    }
+    },
+     instagramDisplay() {
+    return this.ownerProfile?.instagram || null;
+  }
   },
   watch: {
     // Watch for changes in the route ID
@@ -223,21 +219,34 @@ export default {
       }
     },
 
-    async fetchOwnerProfile() {
-      const id = this.ownerIdFromRoute;
-      if (!id) return;
+async fetchOwnerProfile() {
+  const id = this.ownerIdFromRoute;
+  if (!id) return;
 
-      try {
-        console.log('Fetching profile for owner:', id);
-        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${id}`);
-        if (res.data.logo && !res.data.logo.startsWith('http')) {
-          res.data.logo = `https://ta3eem-backend.onrender.com/${res.data.logo.startsWith('/') ? res.data.logo.slice(1) : res.data.logo}`;
-        }
-        this.ownerProfile = res.data;
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-      }
-    },
+  try {
+    console.log('Fetching profile for owner:', id);
+    const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${id}`);
+
+    // Create a new object to trigger reactivity
+    const profileData = {
+      ...res.data,
+      logo: res.data.logo && !res.data.logo.startsWith('http')
+        ? `https://ta3eem-backend.onrender.com/${res.data.logo.startsWith('/') ? res.data.logo.slice(1) : res.data.logo}`
+        : res.data.logo
+    };
+
+    console.log('Profile data received:', profileData);
+
+    // Force reactivity update
+    this.ownerProfile = null; // First set to null
+    this.$nextTick(() => {
+      this.ownerProfile = profileData; // Then set the new data
+    });
+
+  } catch (err) {
+    console.error('Error fetching profile:', err);
+  }
+},
 
     async fetchOwnerReviews() {
       const id = this.ownerIdFromRoute;
