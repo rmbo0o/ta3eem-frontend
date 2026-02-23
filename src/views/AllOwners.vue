@@ -1,13 +1,13 @@
 <template>
   <div class="owners-container">
-    <h2 class="section-title">All Food Owners</h2>
+    <h2 class="section-title">جميع أصحاب المطاعم</h2>
 
     <!-- Search Field -->
     <div class="search-container">
       <input
         v-model="searchQuery"
         class="search-input"
-        placeholder="Search owner name..."
+        placeholder="ابحث عن اسم صاحب المطعم..."
         @input="debouncedSearch"
       />
     </div>
@@ -15,9 +15,9 @@
     <!-- Loading Indicator -->
     <div v-if="loading" class="text-center mt-4">
       <div class="spinner-border text-warning" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">جاري التحميل...</span>
       </div>
-      <p class="mt-2">Loading owners...</p>
+      <p class="mt-2">جاري تحميل أصحاب المطاعم...</p>
     </div>
 
     <!-- Owner List -->
@@ -27,14 +27,14 @@
           <img
             :src="getImageUrl(owner.logo)"
             class="card-image"
-            alt="Owner Image"
+            alt="صورة صاحب المطعم"
             @error="setFallbackImage($event)"
           />
         </div>
         <div class="card-content">
           <h3 class="owner-name">{{ owner.username }}</h3>
           <button class="view-profile-btn" @click="viewProfile(owner.id)">
-            View Profile
+            عرض الملف الشخصي
           </button>
         </div>
       </div>
@@ -42,7 +42,7 @@
 
     <!-- No Results Found -->
     <div v-if="!loading && owners.length === 0" class="text-center mt-4">
-      <p class="text-muted">No owners found matching "{{ searchQuery }}"</p>
+      <p class="text-muted">لا يوجد أصحاب مطاعم يطابقون "{{ searchQuery }}"</p>
     </div>
 
     <!-- Pagination Controls -->
@@ -51,11 +51,11 @@
         class="pagination-btn"
         @click="prevPage"
         :disabled="page <= 1">
-        Previous
+        السابق
       </button>
-      <span class="page-indicator">Page {{ page }}</span>
+      <span class="page-indicator">صفحة {{ page }}</span>
       <button class="pagination-btn" @click="nextPage">
-        Next
+        التالي
       </button>
     </div>
   </div>
@@ -78,19 +78,17 @@ export default {
     };
   },
   methods: {
-    // Debounced search to avoid too many API calls
     debouncedSearch() {
       clearTimeout(this.searchTimeout);
       this.searchTimeout = setTimeout(() => {
-        this.page = 1; // Reset to first page on new search
+        this.page = 1;
         this.fetchOwners();
-      }, 500); // Wait 500ms after user stops typing
+      }, 500);
     },
 
     async fetchOwners() {
       this.loading = true;
 
-      // Build the API URL with proper parameters
       const params = new URLSearchParams();
 
       if (this.searchQuery && this.searchQuery.trim() !== '') {
@@ -102,14 +100,11 @@ export default {
 
       const apiUrl = `https://ta3eem-backend.onrender.com/api/owners?${params.toString()}`;
 
-       // Debug log
-
       try {
         const response = await axios.get(apiUrl);
         this.owners = response.data;
-       // Debug log
       } catch (error) {
-        console.error("Error fetching owners:", error);
+        console.error("خطأ في جلب أصحاب المطاعم:", error);
         this.owners = [];
       } finally {
         this.loading = false;
@@ -159,6 +154,8 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding-top: 100px;
+  direction: rtl;
+  text-align: right;
 }
 
 .section-title {
@@ -166,6 +163,8 @@ export default {
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
 }
 
 .search-container {
@@ -180,6 +179,8 @@ export default {
   border: 1px solid #FFD700;
   background-color: #3a4252;
   color: #ffffff;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
 }
 
 .search-input::placeholder {
@@ -231,6 +232,7 @@ export default {
   color: #ffffff;
   margin-bottom: 1rem;
   font-size: 1.2rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .view-profile-btn {
@@ -243,6 +245,7 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .view-profile-btn:hover {
@@ -265,6 +268,7 @@ export default {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -280,10 +284,15 @@ export default {
 .page-indicator {
   color: #ffffff;
   font-weight: 500;
+  font-family: 'Cairo', sans-serif;
 }
 
 .spinner-border.text-warning {
   color: #FFD700 !important;
+}
+
+.text-muted {
+  font-family: 'Cairo', sans-serif;
 }
 
 @media (max-width: 768px) {

@@ -1,8 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h2>Manage Your Profile</h2>
-
+      <h2>إدارة الملف الشخصي</h2>
     </div>
 
     <!-- Profile Management Form -->
@@ -10,19 +9,19 @@
       <form @submit.prevent="saveChanges">
         <!-- Bio Field -->
         <div class="form-group">
-          <label for="bio">Bio</label>
+          <label for="bio">نبذة عني</label>
           <textarea
             v-model="profile.bio"
             id="bio"
             class="form-control"
-            placeholder="Enter your bio"
+            placeholder="أدخل نبذة عنك"
             rows="4"
           ></textarea>
         </div>
 
-                <!-- NEW: Instagram Field -->
+        <!-- Instagram Field -->
         <div class="form-group">
-          <label for="instagram">Instagram Account</label>
+          <label for="instagram">حساب إنستغرام</label>
           <div class="instagram-input-wrapper">
             <span class="instagram-prefix">@</span>
             <input
@@ -30,15 +29,15 @@
               v-model="profile.instagram"
               type="text"
               class="form-control instagram-input"
-              placeholder="username (e.g., foodie_owner)"
+              placeholder="اسم المستخدم (مثال: foodie_owner)"
             />
           </div>
-          <small class="text-muted">Enter your Instagram username without @</small>
+          <small class="text-muted">أدخل اسم المستخدم بدون @</small>
         </div>
 
         <!-- Image Upload Section -->
         <div class="form-group">
-          <label for="logo">Logo (Image Upload)</label>
+          <label for="logo">الشعار (رفع صورة)</label>
           <div class="file-input-wrapper">
             <input
               type="file"
@@ -47,13 +46,13 @@
               @change="handleImageUpload"
               class="file-input"
             />
-            <label for="logo" class="file-label">Choose File</label>
-            <span class="file-name">{{ fileName || 'No file chosen' }}</span>
+            <label for="logo" class="file-label">اختر ملف</label>
+            <span class="file-name">{{ fileName || 'لم يتم اختيار ملف' }}</span>
           </div>
 
           <!-- Logo Preview -->
           <div v-if="logoPreview" class="logo-preview">
-            <img :src="logoPreview" alt="Logo Preview" />
+            <img :src="logoPreview" alt="معاينة الشعار" />
           </div>
         </div>
 
@@ -63,30 +62,30 @@
           class="btn-save"
           :disabled="isLoading"
         >
-          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          {{ isLoading ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
         </button>
       </form>
     </div>
 
     <!-- Reviews Section -->
     <div class="reviews-section">
-      <h3>Customer Reviews</h3>
+      <h3>تقييمات العملاء</h3>
 
       <div v-if="isLoading" class="text-center">
         <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+          <span class="sr-only">جاري التحميل...</span>
         </div>
       </div>
 
       <div v-else-if="reviews.length === 0" class="no-reviews">
-        No reviews available for this owner.
+        لا توجد تقييمات لهذا المطعم
       </div>
 
       <div v-else class="reviews-list">
         <div v-for="review in reviews" :key="review.id" class="review-card">
           <div class="review-header">
             <div class="reviewer-info">
-              <h4>{{ review.reviewer_name || 'Anonymous' }}</h4>
+              <h4>{{ review.reviewer_name || 'زائر' }}</h4>
               <div class="rating">
                 <span v-for="star in 5" :key="star" class="star" :class="{ 'filled': star <= review.rating }">★</span>
                 <span class="rating-value">{{ review.rating }}/5</span>
@@ -100,7 +99,7 @@
           <!-- Owner's Response -->
           <div v-if="review.response_text" class="owner-response">
             <div class="response-header">
-              <span class="owner-label">Your Response:</span>
+              <span class="owner-label">ردك:</span>
             </div>
             <p class="response-text">{{ review.response_text }}</p>
           </div>
@@ -109,7 +108,7 @@
           <div v-if="!review.response_text" class="response-form">
             <textarea
               v-model="review.responseInput"
-              placeholder="Write your response to this review..."
+              placeholder="اكتب ردك على هذا التقييم..."
               class="response-input"
               rows="3"
             ></textarea>
@@ -118,7 +117,7 @@
               @click="submitResponse(review.id, review.responseInput)"
               :disabled="isLoading || !review.responseInput"
             >
-              Post Response
+              نشر الرد
             </button>
           </div>
         </div>
@@ -162,15 +161,13 @@ export default {
     async fetchProfile() {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No token found');
+        console.error('لا يوجد رمز دخول');
         return;
       }
 
       try {
         this.isLoading = true;
         const response = await axios.get('/auth/profile');
-
-        console.log('Profile response:', response.data);
 
         this.profile.bio = response.data.bio || '';
         this.profile.instagram = response.data.instagram || '';
@@ -188,71 +185,53 @@ export default {
         }
 
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('خطأ في جلب الملف الشخصي:', error);
       } finally {
         this.isLoading = false;
       }
     },
 
     async fetchReviews(ownerId) {
-      console.log('Fetching reviews for owner ID:', ownerId);
-
       try {
         const response = await axios.get(`/reviews/${ownerId}`);
-
-        console.log('Reviews API response:', response.data);
         this.reviews = response.data.map(review => ({
           ...review,
-          responseInput: '' // Initialize empty response input
+          responseInput: ''
         })) || [];
-
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error('خطأ في جلب التقييمات:', error);
       }
     },
 
-async saveChanges() {
-  this.isLoading = true;
+    async saveChanges() {
+      this.isLoading = true;
 
-  const formData = new FormData();
-  formData.append('bio', this.profile.bio);
-  formData.append('instagram', this.profile.instagram); // Make sure this is being sent
+      const formData = new FormData();
+      formData.append('bio', this.profile.bio);
+      formData.append('instagram', this.profile.instagram);
 
-  if (this.profile.logo && this.profile.logo instanceof File) {
-    formData.append('logo', this.profile.logo);
-  }
-
-  try {
-    console.log('Sending data:', {
-      bio: this.profile.bio,
-      instagram: this.profile.instagram,
-      hasLogo: !!this.profile.logo
-    }); // Debug log
-
-    const response = await axios.put('/auth/profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      if (this.profile.logo && this.profile.logo instanceof File) {
+        formData.append('logo', this.profile.logo);
       }
-    });
 
-    console.log('Profile updated response:', response.data);
+      try {
+        const response = await axios.put('/auth/profile', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
 
-    // Refresh profile to show updated data
-    await this.fetchProfile();
+        await this.fetchProfile();
+        alert('تم تحديث الملف الشخصي بنجاح!');
+        this.fileName = '';
 
-    // Show success message
-    alert('Profile updated successfully!');
-
-    // Reset file input
-    this.fileName = '';
-
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    alert(error.response?.data?.message || 'Error updating profile');
-  } finally {
-    this.isLoading = false;
-  }
-},
+      } catch (error) {
+        console.error('خطأ في تحديث الملف الشخصي:', error);
+        alert(error.response?.data?.message || 'حدث خطأ أثناء التحديث');
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     async submitResponse(reviewId, responseText) {
       if (!responseText || !responseText.trim()) return;
@@ -264,9 +243,6 @@ async saveChanges() {
           response_text: responseText
         });
 
-        console.log('Response saved:', response.data);
-
-        // Update the local review with the response
         const review = this.reviews.find(r => r.id === reviewId);
         if (review) {
           review.response_text = responseText;
@@ -274,7 +250,7 @@ async saveChanges() {
         }
 
       } catch (error) {
-        console.error('Error saving response:', error);
+        console.error('خطأ في حفظ الرد:', error);
       } finally {
         this.isLoading = false;
       }
@@ -283,7 +259,7 @@ async saveChanges() {
     formatDate(dateString) {
       if (!dateString) return '';
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('ar-SA', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -303,7 +279,6 @@ async saveChanges() {
 </script>
 
 <style scoped>
-  /* Add these new styles */
 .instagram-input-wrapper {
   display: flex;
   align-items: center;
@@ -318,7 +293,8 @@ async saveChanges() {
   color: #FFD700;
   padding: 0.75rem;
   font-weight: bold;
-  border-right: 1px solid #555;
+  border-left: 1px solid #555;
+  border-right: none;
 }
 
 .instagram-input {
@@ -337,6 +313,7 @@ async saveChanges() {
   margin-top: 0.25rem;
   display: block;
 }
+
 .dashboard-container {
   max-width: 900px;
   margin: 0 auto;
@@ -344,6 +321,8 @@ async saveChanges() {
   background-color: white;
   min-height: 100vh;
   color: #ffffff;
+  direction: rtl;
+  text-align: right;
 }
 
 .dashboard-header {
@@ -358,26 +337,11 @@ async saveChanges() {
 h2, h3 {
   color: #FFD700;
   margin: 0;
+  font-family: 'Cairo', sans-serif;
 }
 
 h3 {
   margin-bottom: 1.5rem;
-}
-
-.btn-logout {
-  background-color: #333;
-  color: #FFD700;
-  border: 1px solid #FFD700;
-  padding: 0.5rem 1.5rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-  background-color: #FFD700;
-  color: #333;
 }
 
 .profile-section {
@@ -396,6 +360,7 @@ label {
   color: #FFD700;
   display: block;
   margin-bottom: 0.5rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .form-control {
@@ -406,6 +371,8 @@ label {
   width: 100%;
   color: #fff;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
 }
 
 .form-control:focus {
@@ -438,6 +405,7 @@ label {
   border: 1px solid #FFD700;
   font-weight: 500;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .file-label:hover {
@@ -447,6 +415,7 @@ label {
 
 .file-name {
   color: #999;
+  font-family: 'Cairo', sans-serif;
 }
 
 .logo-preview {
@@ -475,6 +444,7 @@ label {
   transition: all 0.3s ease;
   width: 100%;
   font-size: 1.1rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-save:hover:not(:disabled) {
@@ -489,7 +459,6 @@ label {
   cursor: not-allowed;
 }
 
-/* Reviews Section */
 .reviews-section {
   background-color: #2d2d2d;
   padding: 2rem;
@@ -526,6 +495,7 @@ label {
 .reviewer-info h4 {
   color: #FFD700;
   margin: 0 0 0.5rem 0;
+  font-family: 'Cairo', sans-serif;
 }
 
 .rating {
@@ -544,7 +514,8 @@ label {
 }
 
 .rating-value {
-  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-left: 0;
   color: #999;
   font-size: 0.9rem;
 }
@@ -552,20 +523,23 @@ label {
 .review-date {
   color: #999;
   font-size: 0.9rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .review-text {
   color: #fff;
   line-height: 1.6;
   margin-bottom: 1rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .owner-response {
   background-color: #2d2d2d;
-  border-left: 3px solid #FFD700;
+  border-right: 3px solid #FFD700;
+  border-left: none;
   padding: 1rem;
   margin-top: 1rem;
-  border-radius: 0 5px 5px 0;
+  border-radius: 5px 0 0 5px;
 }
 
 .response-header {
@@ -576,11 +550,13 @@ label {
   color: #FFD700;
   font-weight: 600;
   font-size: 0.9rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .response-text {
   color: #ddd;
   margin: 0;
+  font-family: 'Cairo', sans-serif;
 }
 
 .response-form {
@@ -595,6 +571,8 @@ label {
   padding: 0.75rem;
   color: #fff;
   margin-bottom: 0.5rem;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
 }
 
 .response-input:focus {
@@ -611,6 +589,7 @@ label {
   cursor: pointer;
   font-weight: 500;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-response:hover:not(:disabled) {
@@ -630,9 +609,9 @@ label {
   padding: 2rem;
   background-color: #333;
   border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
 }
 
-/* Loading Spinner */
 .spinner-border {
   display: inline-block;
   width: 2rem;
@@ -663,7 +642,6 @@ label {
   border: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;

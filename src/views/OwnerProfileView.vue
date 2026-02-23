@@ -1,13 +1,10 @@
 <template>
   <div class="container mt-4">
-    <!-- Debug banner - remove after confirming it works -->
-
-
     <div v-if="!ownerIdFromRoute" class="text-center py-5">
       <div class="spinner-border text-warning" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">جاري التحميل...</span>
       </div>
-      <p class="mt-2">Loading owner data...</p>
+      <p class="mt-2">جاري تحميل بيانات صاحب المطعم...</p>
     </div>
 
     <div v-else-if="ownerProfile">
@@ -18,45 +15,44 @@
             <img
               v-if="ownerProfile.logo"
               :src="getLogoUrl(ownerProfile.logo)"
-              alt="Owner Logo"
+              alt="شعار المطعم"
               class="img-fluid rounded-circle border border-4 border-white shadow"
               width="150"
             />
           </div>
 
           <div class="text-center text-md-start">
-            <h2 class="mb-2 text-dark">{{ ownerProfile.username }}'s Profile</h2>
+            <h2 class="mb-2 text-dark">ملف {{ ownerProfile.username }} الشخصي</h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
-<!-- REPLACE YOUR CURRENT INSTAGRAM SECTION WITH THIS -->
-    <div v-if="instagramDisplay" class="instagram-link mt-3">
-      <a
-        :href="`https://instagram.com/${instagramDisplay}`"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-sm"
-        style="background-color: #E1306C; color: white;"
-      >
-        <i class="fab fa-instagram me-2"></i>
-        @{{ instagramDisplay }}
-      </a>
-    </div>
+            <div v-if="instagramDisplay" class="instagram-link mt-3">
+              <a
+                :href="`https://instagram.com/${instagramDisplay}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm"
+                style="background-color: #E1306C; color: white;"
+              >
+                <i class="fab fa-instagram me-2"></i>
+                @{{ instagramDisplay }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Reviews Section with Enhanced Styling -->
+      <!-- Reviews Section -->
       <div class="reviews-section mb-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3 class="mb-0">Customer Reviews</h3>
+          <h3 class="mb-0">تقييمات العملاء</h3>
           <span class="badge rounded-pill" style="background-color: #FFD700; color: #333;">
-            {{ reviews.length }} reviews
+            {{ reviews.length }} تقييم
           </span>
         </div>
 
         <div v-if="reviews.length">
           <div v-for="review in reviews" :key="review.id" class="review-card mb-3 p-4 rounded-3 shadow-sm">
             <div class="d-flex justify-content-between mb-2">
-              <h5 class="mb-0 text-dark">{{ review.reviewer_name || 'Anonymous' }}</h5>
+              <h5 class="mb-0 text-dark">{{ review.reviewer_name || 'زائر' }}</h5>
               <div>
                 <span v-for="n in 5" :key="n">
                   <i
@@ -68,29 +64,28 @@
             </div>
             <p class="text-muted mb-2"><small>{{ formatDate(review.created_at) }}</small></p>
             <p class="mb-2">{{ review.comment }}</p>
-            <!-- Owner Response - Now correctly displays -->
             <p v-if="review.response_text" class="owner-response p-2 rounded" style="background-color: rgba(255, 215, 0, 0.1);">
-              <strong class="text-dark">Owner Response:</strong> {{ review.response_text }}
+              <strong class="text-dark">رد صاحب المطعم:</strong> {{ review.response_text }}
             </p>
           </div>
         </div>
         <div v-else class="text-center py-4">
-          <p class="text-muted">No reviews yet. Be the first to review!</p>
+          <p class="text-muted">لا توجد تقييمات بعد. كن أول من يقيم!</p>
         </div>
       </div>
 
       <!-- Review Form for non-owners -->
       <div v-if="!isOwner" class="review-form p-4 mb-4 rounded-3 shadow-sm" style="background-color: #f8f9fa;">
-        <h4 class="mb-3 text-center">Share Your Experience</h4>
+        <h4 class="mb-3 text-center">شاركنا تجربتك</h4>
         <form @submit.prevent="submitReview">
           <div class="mb-3">
-            <label for="reviewer_name" class="form-label">Your Name</label>
+            <label for="reviewer_name" class="form-label">اسمك</label>
             <input
               id="reviewer_name"
               v-model="newReview.reviewer_name"
               class="form-control"
               :class="{ 'is-invalid': errors.reviewer_name }"
-              placeholder="Enter your name"
+              placeholder="أدخل اسمك"
             />
             <div v-if="errors.reviewer_name" class="invalid-feedback">
               {{ errors.reviewer_name }}
@@ -98,23 +93,23 @@
           </div>
 
           <div class="mb-3">
-            <label for="comment" class="form-label">Your Review</label>
+            <label for="comment" class="form-label">تقييمك</label>
             <textarea
               id="comment"
               v-model="newReview.comment"
               class="form-control"
               :class="{ 'is-invalid': errors.comment }"
               rows="3"
-              placeholder="Share your thoughts about this restaurant..."
+              placeholder="شاركنا رأيك في هذا المطعم..."
             ></textarea>
             <div v-if="errors.comment" class="invalid-feedback">
               {{ errors.comment }}
             </div>
-            <small class="text-muted">Minimum 10 characters required</small>
+            <small class="text-muted">الحد الأدنى 10 أحرف</small>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Your Rating</label>
+            <label class="form-label">تقييمك بالنجوم</label>
             <div class="star-rating">
               <i
                 v-for="n in 5"
@@ -130,7 +125,7 @@
           </div>
 
           <button type="submit" class="btn w-100" style="background-color: #FFD700; color: #333; border: none;">
-            Submit Review
+            إرسال التقييم
           </button>
         </form>
       </div>
@@ -142,16 +137,16 @@
           class="btn btn-lg px-4"
           style="background-color: #333; color: #FFD700;"
         >
-          <i class="fas fa-utensils me-2"></i> Explore Full Menu
+          <i class="fas fa-utensils me-2"></i> استعرض القائمة الكاملة
         </router-link>
       </div>
     </div>
 
     <div v-else class="text-center py-5">
       <div class="spinner-border text-warning" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">جاري التحميل...</span>
       </div>
-      <p class="mt-2">Loading profile...</p>
+      <p class="mt-2">جاري تحميل الملف الشخصي...</p>
     </div>
   </div>
 </template>
@@ -160,7 +155,6 @@
 import axios from '@/utils/api';
 
 export default {
-  // No props needed - we'll use $route.params.id directly
   data() {
     return {
       ownerProfile: null,
@@ -179,21 +173,19 @@ export default {
     };
   },
   computed: {
-    // Get owner ID directly from the route params
     ownerIdFromRoute() {
       return this.$route.params.id;
     },
-     instagramDisplay() {
-    return this.ownerProfile?.instagram || null;
-  }
+    instagramDisplay() {
+      return this.ownerProfile?.instagram || null;
+    }
   },
   watch: {
-    // Watch for changes in the route ID
     ownerIdFromRoute: {
       immediate: true,
       handler(newId) {
         if (newId) {
-          console.log('Loading data for owner:', newId);
+          console.log('جاري تحميل بيانات صاحب المطعم:', newId);
           this.checkIfOwner();
           this.fetchOwnerProfile();
           this.fetchOwnerReviews();
@@ -219,51 +211,44 @@ export default {
       }
     },
 
-async fetchOwnerProfile() {
-  const id = this.ownerIdFromRoute;
-  if (!id) return;
+    async fetchOwnerProfile() {
+      const id = this.ownerIdFromRoute;
+      if (!id) return;
 
-  try {
-    console.log('Fetching profile for owner:', id);
-    const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${id}`);
+      try {
+        const res = await axios.get(`https://ta3eem-backend.onrender.com/api/owners/${id}`);
 
-    // Create a new object to trigger reactivity
-    const profileData = {
-      ...res.data,
-      logo: res.data.logo && !res.data.logo.startsWith('http')
-        ? `https://ta3eem-backend.onrender.com/${res.data.logo.startsWith('/') ? res.data.logo.slice(1) : res.data.logo}`
-        : res.data.logo
-    };
+        const profileData = {
+          ...res.data,
+          logo: res.data.logo && !res.data.logo.startsWith('http')
+            ? `https://ta3eem-backend.onrender.com/${res.data.logo.startsWith('/') ? res.data.logo.slice(1) : res.data.logo}`
+            : res.data.logo
+        };
 
-    console.log('Profile data received:', profileData);
+        this.ownerProfile = null;
+        this.$nextTick(() => {
+          this.ownerProfile = profileData;
+        });
 
-    // Force reactivity update
-    this.ownerProfile = null; // First set to null
-    this.$nextTick(() => {
-      this.ownerProfile = profileData; // Then set the new data
-    });
-
-  } catch (err) {
-    console.error('Error fetching profile:', err);
-  }
-},
+      } catch (err) {
+        console.error('خطأ في جلب الملف الشخصي:', err);
+      }
+    },
 
     async fetchOwnerReviews() {
       const id = this.ownerIdFromRoute;
       if (!id) return;
 
       try {
-        console.log('Fetching reviews for owner:', id);
         const res = await axios.get(`https://ta3eem-backend.onrender.com/api/reviews/${id}`);
         this.reviews = res.data;
-        console.log('Reviews loaded:', this.reviews);
       } catch (err) {
-        console.error('Error fetching reviews:', err);
+        console.error('خطأ في جلب التقييمات:', err);
       }
     },
 
     formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('en-US', {
+      return new Date(dateString).toLocaleDateString('ar-SA', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -271,28 +256,26 @@ async fetchOwnerProfile() {
     },
 
     async submitReview() {
-      // Reset errors
       this.errors = {
         reviewer_name: '',
         comment: '',
         rating: ''
       };
 
-      // Validate inputs
       let isValid = true;
 
       if (!this.newReview.reviewer_name.trim()) {
-        this.errors.reviewer_name = 'Name is required';
+        this.errors.reviewer_name = 'الاسم مطلوب';
         isValid = false;
       }
 
       if (this.newReview.comment.trim().length < 10) {
-        this.errors.comment = 'Comment must be at least 10 characters';
+        this.errors.comment = 'التعليق يجب أن يكون 10 أحرف على الأقل';
         isValid = false;
       }
 
       if (this.newReview.rating < 1 || this.newReview.rating > 5) {
-        this.errors.rating = 'Please select a rating between 1 and 5';
+        this.errors.rating = 'الرجاء اختيار تقييم بين 1 و 5';
         isValid = false;
       }
 
@@ -306,7 +289,6 @@ async fetchOwnerProfile() {
           rating: this.newReview.rating
         });
 
-        // Reset form on success
         this.newReview = {
           reviewer_name: '',
           comment: '',
@@ -314,10 +296,10 @@ async fetchOwnerProfile() {
         };
 
         await this.fetchOwnerReviews();
-        this.notify(response.data.message || 'Review submitted successfully');
+        this.notify('تم إرسال التقييم بنجاح');
       } catch (err) {
-        console.error('Error submitting review:', err);
-        this.notify(err.response?.data?.message || 'Failed to submit review');
+        console.error('خطأ في إرسال التقييم:', err);
+        this.notify(err.response?.data?.message || 'فشل إرسال التقييم');
       }
     },
 
@@ -333,19 +315,22 @@ async fetchOwnerProfile() {
 </script>
 
 <style scoped>
-  /* Add Instagram styles */
 .instagram-link a {
   transition: all 0.3s ease;
   text-decoration: none;
   font-weight: 500;
+  font-family: 'Cairo', sans-serif;
 }
 
 .instagram-link a:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
 .container {
   padding-top: 50px;
+  direction: rtl;
+  text-align: right;
 }
 
 .profile-header {
@@ -365,7 +350,8 @@ async fetchOwnerProfile() {
 .review-card {
   background-color: white;
   transition: all 0.3s ease;
-  border-left: 4px solid #FFD700;
+  border-right: 4px solid #FFD700;
+  border-left: none;
 }
 
 .review-card:hover {
@@ -374,7 +360,8 @@ async fetchOwnerProfile() {
 }
 
 .owner-response {
-  border-left: 3px solid #FFD700;
+  border-right: 3px solid #FFD700;
+  border-left: none;
 }
 
 .star-rating i {
@@ -398,6 +385,7 @@ async fetchOwnerProfile() {
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-weight: 500;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-view-menu {
@@ -409,11 +397,20 @@ async fetchOwnerProfile() {
   border-radius: 5px;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-view-menu:hover {
   background-color: #555;
   color: #FFC107;
+}
+
+h2, h3, h4, h5 {
+  font-family: 'Cairo', sans-serif;
+}
+
+p, label, small, .form-control, .btn {
+  font-family: 'Cairo', sans-serif;
 }
 
 @media (max-width: 768px) {
