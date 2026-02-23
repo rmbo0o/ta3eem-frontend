@@ -211,35 +211,48 @@ export default {
       }
     },
 
-    async saveChanges() {
-      this.isLoading = true;
+async saveChanges() {
+  this.isLoading = true;
 
-      const formData = new FormData();
-      formData.append('instagram', this.profile.instagram);
-      formData.append('bio', this.profile.bio);
-      if (this.profile.logo) {
-        formData.append('logo', this.profile.logo);
+  const formData = new FormData();
+  formData.append('bio', this.profile.bio);
+  formData.append('instagram', this.profile.instagram); // Make sure this is being sent
+
+  if (this.profile.logo && this.profile.logo instanceof File) {
+    formData.append('logo', this.profile.logo);
+  }
+
+  try {
+    console.log('Sending data:', {
+      bio: this.profile.bio,
+      instagram: this.profile.instagram,
+      hasLogo: !!this.profile.logo
+    }); // Debug log
+
+    const response = await axios.put('/auth/profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
+    });
 
-      try {
-        const response = await axios.put('/auth/profile', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+    console.log('Profile updated response:', response.data);
 
-        console.log('Profile updated:', response.data);
-        await this.fetchProfile();
+    // Refresh profile to show updated data
+    await this.fetchProfile();
 
-        // Reset file input
-        this.fileName = '';
+    // Show success message
+    alert('Profile updated successfully!');
 
-      } catch (error) {
-        console.error('Error updating profile:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
+    // Reset file input
+    this.fileName = '';
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert(error.response?.data?.message || 'Error updating profile');
+  } finally {
+    this.isLoading = false;
+  }
+},
 
     async submitResponse(reviewId, responseText) {
       if (!responseText || !responseText.trim()) return;
