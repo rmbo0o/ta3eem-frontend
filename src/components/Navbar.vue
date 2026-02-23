@@ -1,15 +1,15 @@
 <template>
   <nav :class="['navbar', 'navbar-expand-lg', 'px-4', { 'navbar-solid': isSolid }]">
     <div class="navbar-brand-container">
-      <img src="@/assets/ta3eem-logo.png" alt="Ta3eem Logo" class="navbar-logo">
-      <router-link to="/" class="navbar-brand">Ta3eem</router-link>
+      <img src="@/assets/ta3eem-logo.png" alt="شعار طعم" class="navbar-logo">
+      <router-link to="/" class="navbar-brand">طعم</router-link>
     </div>
     <div v-if="!isLoggedIn" class="d-flex gap-2">
-      <router-link to="/login" class="btn btn-outline-light">Sign In</router-link>
-      <router-link to="/register" class="btn btn-light">Register</router-link>
+      <router-link to="/login" class="btn btn-outline-light">تسجيل الدخول</router-link>
+      <router-link to="/register" class="btn btn-light">إنشاء حساب</router-link>
     </div>
     <div v-else>
-      <button @click="handleLogout" class="btn btn-outline-light-danger">Logout</button>
+      <button @click="handleLogout" class="btn btn-outline-light-danger">تسجيل الخروج</button>
     </div>
   </nav>
 </template>
@@ -27,7 +27,6 @@ const isLoggedIn = computed(() => auth.isAuthenticated)
 
 const handleScroll = () => {
   const scrollPosition = window.scrollY || window.pageYOffset
-  // Start transitioning before reaching the threshold for smoother effect
   isSolid.value = scrollPosition > 20
 }
 
@@ -58,6 +57,7 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  direction: rtl;
 }
 
 .navbar-brand-container {
@@ -67,7 +67,7 @@ const handleLogout = () => {
 }
 
 .navbar-logo {
-  height: 40px; /* Adjust based on your logo's aspect ratio */
+  height: 40px;
   width: auto;
   transition: all 0.4s ease;
 }
@@ -82,6 +82,8 @@ const handleLogout = () => {
   color: #3b3a39;
   font-weight: bold;
   transition: color 0.4s ease;
+  font-family: 'Cairo', sans-serif;
+  font-size: 1.5rem;
 }
 
 .navbar-solid .navbar-brand {
@@ -92,6 +94,7 @@ const handleLogout = () => {
   background-color: white;
   color: #2d333f;
   transition: all 0.4s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-outline-light:hover {
@@ -104,6 +107,7 @@ const handleLogout = () => {
   background-color: white;
   color: #2d333f;
   transition: all 0.4s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-light:hover {
@@ -116,6 +120,7 @@ const handleLogout = () => {
   background-color: white;
   color: #2d333f;
   transition: all 0.4s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-outline-light-danger:hover {
@@ -142,14 +147,17 @@ const handleLogout = () => {
   background-color: #434a59;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .navbar-logo {
     height: 30px;
   }
 
   .navbar-brand {
-    font-size: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .navbar {
+    padding: 15px 3%;
   }
 }
 </style>

@@ -15,8 +15,8 @@
     <!-- Category Items -->
     <div v-if="selectedCategoryName" class="category-items-section">
       <div class="category-header">
-        <h2>{{ selectedCategoryName }} Items</h2>
-        <button @click="fetchAllItems" class="btn btn-outline-secondary">Show All</button>
+        <h2>أصناف {{ selectedCategoryName }}</h2>
+        <button @click="fetchAllItems" class="btn btn-outline-secondary">عرض الكل</button>
       </div>
 
       <div v-if="loading" class="loading-spinner">
@@ -25,7 +25,7 @@
 
       <div v-else class="items-container">
         <div v-if="categoryItems.length === 0" class="no-items">
-          <p>No items found in this category.</p>
+          <p>لا توجد أصناف في هذه الفئة</p>
         </div>
 
         <div v-for="item in categoryItems" :key="item.id" class="item-card">
@@ -36,9 +36,9 @@
             <h4>{{ item.food_name }}</h4>
             <p class="item-description">{{ item.description }}</p>
             <div class="item-footer">
-              <span class="price">${{ item.price }}</span>
+              <span class="price">{{ item.price }} ر.س</span>
               <button @click.stop="viewOwnerMenu(item.owner_id)" class="btn btn-view-menu">
-                View Owner's Menu
+                عرض قائمة المطعم
               </button>
             </div>
           </div>
@@ -57,26 +57,24 @@ const router = useRouter()
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ta3eem-frontendnew.onrender.com'
 
-// Reactive data
+// Categories in Arabic
 const categories = ref([
-  { id: 1, name: 'Breakfast' },
-  { id: 2, name: 'Lunch' },
-  { id: 3, name: 'Dinner' },
-  { id: 4, name: 'Desserts' },
-  { id: 5, name: 'Drinks' },
+  { id: 1, name: 'فطور' },
+  { id: 2, name: 'غداء' },
+  { id: 3, name: 'عشاء' },
+  { id: 4, name: 'حلويات' },
+  { id: 5, name: 'مشروبات' },
 ])
 const selectedCategoryId = ref(null)
 const selectedCategoryName = ref('')
 const categoryItems = ref([])
 const loading = ref(false)
 
-// Fetch items for selected category
-// Fetch items for selected category
 async function fetchCategoryItems(categoryId, categoryName) {
   selectedCategoryId.value = categoryId
   selectedCategoryName.value = categoryName
   loading.value = true
-  categoryItems.value = [] // Clear previous items
+  categoryItems.value = []
 
   try {
     const response = await axios.get(`${API_BASE_URL}/categories/food-items`, {
@@ -88,47 +86,28 @@ async function fetchCategoryItems(categoryId, categoryName) {
 
     categoryItems.value = response.data || []
   } catch (error) {
-    console.error('Error fetching category items:', error)
+    console.error('خطأ في جلب الأصناف:', error)
     categoryItems.value = []
   } finally {
     loading.value = false
   }
 }
 
-// Fetch all items (for "Show All" button)
-// async function fetchAllItems() {
-//   loading.value = true;
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/api/menu/food-items`);
-//     categoryItems.value = response.data || [];
-//   } catch (error) {
-//     console.error('Error fetching all items:', error);
-//     categoryItems.value = [];
-//   } finally {
-//     loading.value = false;
-//   }
-// }
-
-// View owner's menu
 const viewOwnerMenu = (ownerId) => {
-  console.log('Navigating to owner:', ownerId)
-  console.log('Router available:', router)
   if (ownerId) {
     router.push(`/owner/${ownerId}/menu`)
   }
 }
 
-// Handle image URLs
 function getImageUrl(imagePath) {
   if (!imagePath) {
-    return '/placeholder-food.jpg' // Default placeholder image
+    return '/placeholder-food.jpg'
   }
   return imagePath.startsWith('http') ? imagePath : `${API_BASE_URL}${imagePath}`
 }
 
-// Initialize component
 onMounted(() => {
-  // You can fetch initial data here if needed
+  // يمكن إضافة كود هنا إذا لزم الأمر
 })
 </script>
 
@@ -137,6 +116,8 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  direction: rtl;
+  text-align: right;
 }
 
 .category-cards {
@@ -156,25 +137,21 @@ onMounted(() => {
   transition: all 0.3s ease;
   text-align: center;
   border: none;
-  color: #4b515e;
 }
 
 .category-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   background: #ffc107;
-  color: black;
 }
 
 .category-card h3 {
   margin: 0;
   font-size: 1.2rem;
-
   font-weight: 600;
+  font-family: 'Cairo', sans-serif;
 }
-.category-card h3:hover {
-  color: black;
-}
+
 .category-header {
   display: flex;
   justify-content: space-between;
@@ -187,6 +164,7 @@ onMounted(() => {
 .category-header h2 {
   margin: 0;
   color: #333;
+  font-family: 'Cairo', sans-serif;
 }
 
 .items-container {
@@ -232,6 +210,7 @@ onMounted(() => {
   margin: 0 0 10px 0;
   color: #333;
   font-size: 1.1rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .item-description {
@@ -239,13 +218,9 @@ onMounted(() => {
   font-size: 0.9rem;
   margin-bottom: 15px;
   display: -webkit-box;
-  display: -moz-box;
   -webkit-line-clamp: 2;
-  -moz-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
-  -moz-box-orient: vertical;
-  box-orient: vertical;
   overflow: hidden;
 }
 
@@ -259,6 +234,7 @@ onMounted(() => {
   font-weight: bold;
   color: #333;
   font-size: 1.1rem;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-view-menu {
@@ -269,6 +245,7 @@ onMounted(() => {
   border-radius: 5px;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-view-menu:hover {
@@ -287,6 +264,7 @@ onMounted(() => {
   padding: 30px;
   color: #666;
   grid-column: 1 / -1;
+  font-family: 'Cairo', sans-serif;
 }
 
 @media (max-width: 768px) {
