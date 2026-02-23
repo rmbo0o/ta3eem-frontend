@@ -1,19 +1,18 @@
 <template>
   <div class="menu-container">
     <div>
-                            <button
-                @click="viewOwnerMenu(ownerId)"
-                class=" btn btn-view-menu"
-              >
-                View Owner's Menu
-              </button>
-      </div>
-    <div v-if="loading" class="loading">Loading menu...</div>
+      <button
+        @click="viewOwnerMenu(ownerId)"
+        class="btn btn-view-menu"
+      >
+        عرض قائمة المطعم
+      </button>
+    </div>
+
+    <div v-if="loading" class="loading">جاري تحميل القائمة...</div>
 
     <div v-else-if="menuItems.length > 0" class="row">
       <div v-for="item in displayedItems" :key="item.id" class="col-md-6 col-lg-4 mb-4">
-
-
         <div class="card h-100">
           <img
             v-if="item.image || item.image_url"
@@ -25,7 +24,7 @@
           <div class="card-body">
             <h5 class="card-title">{{ item.food_name }}</h5>
             <p class="card-text">{{ item.description }}</p>
-            <p class="text-success">${{ formatPrice(item.price) }}</p>
+            <p class="text-success">{{ formatPrice(item.price) }} ر.س</p>
 
             <div v-if="item.social_media_link" class="social-link mt-2">
               <a
@@ -34,7 +33,7 @@
                 rel="noopener noreferrer"
                 class="text-decoration-none"
               >
-                <i class="fab fa-instagram me-1"></i>
+                <i class="fab fa-instagram ml-1"></i>
                 {{ formatSocialLink(item.social_media_link) }}
               </a>
             </div>
@@ -44,7 +43,7 @@
     </div>
 
     <div v-else class="empty-state">
-      <p>No menu items available</p>
+      <p>لا توجد عناصر في القائمة</p>
     </div>
   </div>
 </template>
@@ -76,25 +75,18 @@ export default {
       const num = parseFloat(price);
       return isNaN(num) ? '0.00' : num.toFixed(2);
     },
-getImageUrl(imagePath) {
-  if (!imagePath) return '';
-
-  // If it's already a full URL (Cloudinary or other), return as is
-  if (imagePath.startsWith('http')) {
-    return imagePath;
-  }
-
-  // For any legacy local paths, return empty (they won't work anymore)
-  console.warn('Legacy local image path detected:', imagePath);
-  return '';
-},
+    getImageUrl(imagePath) {
+      if (!imagePath) return '';
+      if (imagePath.startsWith('http')) {
+        return imagePath;
+      }
+      console.warn('مسار الصورة القديم:', imagePath);
+      return '';
+    },
     handleImageError(event) {
-  console.error('Image failed to load:', event.target.src);
-  // Replace with a default food placeholder
-  event.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1/ta3eem/default-food.jpg';
-  // Or hide it
-  // event.target.style.display = 'none';
-},
+      console.error('فشل تحميل الصورة:', event.target.src);
+      event.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1/ta3eem/default-food.jpg';
+    },
     ensureHttp(link) {
       if (!link) return '';
       return link.startsWith('http') ? link : `https://${link}`;
@@ -105,12 +97,10 @@ getImageUrl(imagePath) {
       return match ? `@${match[1]}` : link;
     },
     viewOwnerMenu(ownerId) {
-  console.log('Navigating to owner:', ownerId)
-  console.log('Router available:', this.$router)
-  if (ownerId) {
-    this.$router.push(`/owner/${ownerId}`)
-  }
-}
+      if (ownerId) {
+        this.$router.push(`/owner/${ownerId}`);
+      }
+    }
   },
   computed: {
     displayedItems() {
@@ -120,23 +110,22 @@ getImageUrl(imagePath) {
       return this.menuItems;
     }
   },
-async created() {
-  try {
-    const baseURL = 'https://ta3eem-backend.onrender.com'; // Your backend URL
-    const endpoint = this.ownerId
-      ? `${baseURL}/api/menu/public/${this.ownerId}`
-      : `${baseURL}/api/menu/public/unknown`;
+  async created() {
+    try {
+      const baseURL = 'https://ta3eem-backend.onrender.com';
+      const endpoint = this.ownerId
+        ? `${baseURL}/api/menu/public/${this.ownerId}`
+        : `${baseURL}/api/menu/public/unknown`;
 
-    const { data } = await axios.get(endpoint);
-    this.menuItems = Array.isArray(data) ? data : [];
-  } catch (err) {
-    this.error = err.response?.data?.message || 'Failed to load menu';
-    console.error('Error loading menu:', err);
-  } finally {
-    this.loading = false;
-  }
-},
-  // Add this setup function to provide the router
+      const { data } = await axios.get(endpoint);
+      this.menuItems = Array.isArray(data) ? data : [];
+    } catch (err) {
+      this.error = err.response?.data?.message || 'فشل تحميل القائمة';
+      console.error('خطأ في تحميل القائمة:', err);
+    } finally {
+      this.loading = false;
+    }
+  },
   setup() {
     const router = useRouter();
     return { router };
@@ -148,6 +137,8 @@ async created() {
 .menu-container {
   padding: 2rem;
   background-color: #f8f9fa;
+  direction: rtl;
+  text-align: right;
 }
 
 .card {
@@ -155,71 +146,71 @@ async created() {
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
-  background-color: white; /* Gold background */
+  background-color: white;
 }
 
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   background-color: #FFD700;
-  box-shadow: 5px 10px 1px 1px #2d333f;/* Slightly darker gold on hover */
+  box-shadow: 5px 10px 1px 1px #2d333f;
 }
 
 .card-img-top {
   height: 200px;
   object-fit: cover;
   width: 100%;
-  border-bottom: 1px solid rgba(45, 51, 63, 0.1); /* Dark border */
+  border-bottom: 1px solid rgba(45, 51, 63, 0.1);
 }
 
 .card-body {
   padding: 1.5rem;
-  color: #2d333f; /* Dark text */
+  color: #2d333f;
 }
 
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #2d333f; /* Dark text */
+  color: #2d333f;
+  font-family: 'Cairo', sans-serif;
 }
 
 .card-text {
-  color: #2d333f; /* Dark text */
+  color: #2d333f;
   font-size: 0.95rem;
   margin-bottom: 1rem;
   opacity: 0.9;
+  font-family: 'Cairo', sans-serif;
 }
 
 .price {
-  color: #2d333f; /* Dark text */
+  color: #2d333f;
   font-weight: bold;
   font-size: 1.1rem;
 }
 
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  padding: 3rem;
-}
-
 .social-link a {
-  color: #1358e3; /* Dark text */
+  color: #1358e3;
   transition: color 0.2s;
   font-weight: 500;
+  font-family: 'Cairo', sans-serif;
 }
 
 .social-link a:hover {
-  color: rgba(45, 51, 63, 0.8); /* Slightly transparent dark */
+  color: rgba(45, 51, 63, 0.8);
 }
 
 .empty-state {
-  background-color: #FFD700; /* Gold background */
+  background-color: #FFD700;
   border-radius: 12px;
-  color: #2d333f; /* Dark text */
+  color: #2d333f;
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Cairo', sans-serif;
 }
-.btn-view-menu {
 
+.btn-view-menu {
   background-color: #333;
   color: #FFD700;
   border: none;
@@ -228,13 +219,25 @@ async created() {
   border-radius: 5px;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-view-menu:hover {
   background-color: #555;
   color: #FFC107;
 }
-/* Responsive adjustments */
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Cairo', sans-serif;
+  color: #666;
+}
+
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
 @media (max-width: 768px) {
   .menu-container {
     padding: 1rem;

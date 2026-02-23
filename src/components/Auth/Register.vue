@@ -3,37 +3,37 @@
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-4">
         <div class="card shadow-sm p-4">
-          <h2 class="text-center mb-4">Register</h2>
+          <h2 class="text-center mb-4">إنشاء حساب جديد</h2>
           <form @submit.prevent="register" novalidate>
             <div class="mb-3">
-              <label for="name" class="form-label">Name</label>
+              <label for="name" class="form-label">الاسم</label>
               <input
                 type="text"
                 v-model="name"
                 class="form-control"
-                placeholder="Enter your name"
+                placeholder="أدخل اسمك"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">البريد الإلكتروني</label>
               <input
                 type="email"
                 v-model="email"
                 class="form-control"
-                placeholder="Enter your email"
+                placeholder="أدخل بريدك الإلكتروني"
                 required
               />
             </div>
 
             <div class="mb-3 position-relative password-input-container">
-              <label for="password" class="form-label">Password</label>
+              <label for="password" class="form-label">كلمة المرور</label>
               <input
                 :type="showPassword ? 'text' : 'password'"
                 v-model="password"
                 class="form-control"
-                placeholder="Enter your password"
+                placeholder="أدخل كلمة المرور"
                 required
               />
               <i
@@ -44,9 +44,13 @@
 
             <button type="submit" class="btn btn-success w-100 mt-3" :disabled="loading">
               <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span v-if="!loading">Register</span>
+              <span v-if="!loading">إنشاء حساب</span>
             </button>
           </form>
+          <p class="mt-3 text-center">
+            لديك حساب بالفعل؟
+            <router-link to="/login" class="text-decoration-none">تسجيل الدخول</router-link>
+          </p>
         </div>
       </div>
     </div>
@@ -74,7 +78,7 @@ export default {
         await authStore.register({ name: this.name, email: this.email, password: this.password });
         this.$router.push("/dashboard");
       } catch (error) {
-        alert("This email is already registered.");
+        alert("هذا البريد الإلكتروني مسجل بالفعل");
       } finally {
         this.loading = false;
       }
@@ -89,11 +93,28 @@ export default {
 <style scoped>
 .container {
   max-width: 1600px;
+  direction: rtl;
+  text-align: right;
 }
 
 .card {
   background: #f8f9fa;
   border-radius: 8px;
+}
+
+.card h2 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+}
+
+.form-label {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+}
+
+.form-control {
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
 }
 
 .password-input-container {
@@ -102,7 +123,8 @@ export default {
 
 .toggle-password {
   position: absolute;
-  right: 10px;
+  left: 10px;
+  right: auto;
   top: 35px;
   cursor: pointer;
   font-size: 18px;
@@ -112,5 +134,24 @@ export default {
 
 .toggle-password:hover {
   color: #495057;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  font-family: 'Cairo', sans-serif;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+p {
+  font-family: 'Cairo', sans-serif;
+}
+
+a {
+  font-family: 'Cairo', sans-serif;
 }
 </style>
