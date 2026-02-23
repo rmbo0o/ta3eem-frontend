@@ -23,10 +23,7 @@
               width="150"
             />
           </div>
-                <div style="background: blue; color: white; padding: 10px; margin: 10px 0;">
-        Debug: instagram = "{{ ownerProfile.instagram }}"
-        ({{ ownerProfile.instagram ? 'exists' : 'does not exist' }})
-      </div>
+
           <div class="text-center text-md-start">
             <h2 class="mb-2 text-dark">{{ ownerProfile.username }}'s Profile</h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
