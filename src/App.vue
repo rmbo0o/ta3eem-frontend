@@ -2,7 +2,7 @@
   <div id="app" dir="rtl">
     <Navbar />
     <router-view></router-view>
-
+    
   </div>
 </template>
 
@@ -13,20 +13,28 @@ import Navbar from './components/Navbar.vue'
 export default {
   name: 'App',
   components: {
-    Navbar
+    Navbar,
 
   }
 }
 </script>
 
 <style>
-/* Basic reset with Arabic font */
+/* Import Noto Sans Arabic Font */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap');
+
+/* Global RTL and Font Settings */
 body, html {
   margin: 0;
   padding: 0;
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  text-align: right;
   direction: rtl;
+  text-align: right;
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
+
+/* All elements will inherit the font */
+h1, h2, h3, h4, h5, h6, p, a, span, div, button, input, textarea, select, label, small {
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 /* RTL Helper Classes */
@@ -45,7 +53,7 @@ body, html {
   flex-direction: row-reverse;
 }
 
-/* Fix input groups */
+/* Fix input groups for RTL */
 .input-group > .form-control:not(:last-child) {
   border-radius: 0 0.25rem 0.25rem 0;
 }
@@ -54,9 +62,24 @@ body, html {
   border-radius: 0.25rem 0 0 0.25rem;
 }
 
-/* Fix icons in buttons */
+/* Fix icons in buttons for RTL */
 .btn i {
   margin-left: 0.5rem;
   margin-right: 0;
+}
+
+/* Optional: Different font weights for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700; /* Bold for headings */
+}
+
+/* Optional: Lighter weight for body text */
+p, span, div, label {
+  font-weight: 400; /* Regular for body text */
+}
+
+/* Optional: Medium weight for buttons */
+button, .btn {
+  font-weight: 500; /* Medium for buttons */
 }
 </style>
