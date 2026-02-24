@@ -23,9 +23,29 @@ export default {
 /* Import Noto Sans Arabic Font */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap');
 
-/* Global RTL and Font Settings - FORCE on EVERYTHING */
+/* Global RTL and Font Settings */
 * {
   font-family: 'Noto Sans Arabic', sans-serif !important;
+}
+
+/* BUT - Exclude Font Awesome icons! */
+i[class^="fa-"],
+i[class*=" fa-"],
+.fab, .fas, .far, .fal, .fad, .fat {
+  font-family: "Font Awesome 6 Free" !important;
+}
+
+.fab {
+  font-family: "Font Awesome 6 Brands" !important;
+}
+
+.fas, .far, .fal, .fad, .fat {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900;
+}
+
+.far {
+  font-weight: 400;
 }
 
 body, html {
@@ -46,12 +66,10 @@ body, html {
   margin-right: 0 !important;
 }
 
-/* Fix Bootstrap grid for RTL */
 .row {
   flex-direction: row-reverse;
 }
 
-/* Fix input groups */
 .input-group > .form-control:not(:last-child) {
   border-radius: 0 0.25rem 0.25rem 0;
 }
@@ -60,7 +78,6 @@ body, html {
   border-radius: 0.25rem 0 0 0.25rem;
 }
 
-/* Fix icons in buttons */
 .btn i {
   margin-left: 0.5rem;
   margin-right: 0;
