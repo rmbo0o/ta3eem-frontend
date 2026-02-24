@@ -6,7 +6,7 @@
         <span>إدارة القائمة</span>
       </router-link>
 
-      <router-link to="/dashboard/profile" class="dashboard-nav-item" :class="{ active: isActive('/dashboard/profile') }">
+      <router-link to="/profile" class="dashboard-nav-item" :class="{ active: isActive('/dashboard/profile') }">
         <i class="fas fa-user"></i>
         <span>الملف الشخصي</span>
       </router-link>
