@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container " style="padding-top: 80px;">
     <DashboardNav />
     <div class="dashboard-header">
       <h2>إدارة الملف الشخصي</h2>
