@@ -1,15 +1,34 @@
 <template>
-  <nav :class="['navbar', 'navbar-expand-lg', 'px-4', { 'navbar-solid': isSolid }]">
+  <nav :class="['navbar', 'navbar-expand-lg', { 'navbar-solid': isSolid }]">
     <div class="navbar-brand-container">
       <img src="@/assets/ta3eem-logo.png" alt="شعار طعم" class="navbar-logo">
-      <router-link to="/" class="navbar-brand">Ta3eem</router-link>
+      <router-link to="/" class="navbar-brand">طعم</router-link>
     </div>
-    <div v-if="!isLoggedIn" class="d-flex gap-2">
+
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-btn" @click="toggleMobileMenu" v-if="!isLoggedIn">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Desktop menu -->
+    <div class="desktop-menu" v-if="!isLoggedIn">
       <router-link to="/login" class="btn btn-outline-light">تسجيل الدخول</router-link>
       <router-link to="/register" class="btn btn-light">إنشاء حساب</router-link>
     </div>
-    <div v-else>
+
+    <!-- Logout button -->
+    <div v-if="isLoggedIn">
       <button @click="handleLogout" class="btn btn-outline-light-danger">تسجيل الخروج</button>
+    </div>
+
+    <!-- Mobile menu dropdown -->
+    <div class="mobile-menu" v-if="mobileMenuOpen && !isLoggedIn">
+      <router-link to="/login" class="mobile-menu-item" @click="mobileMenuOpen = false">
+        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+      </router-link>
+      <router-link to="/register" class="mobile-menu-item" @click="mobileMenuOpen = false">
+        <i class="fas fa-user-plus"></i> إنشاء حساب
+      </router-link>
     </div>
   </nav>
 </template>
@@ -22,12 +41,17 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 const auth = useAuthStore()
 const router = useRouter()
 const isSolid = ref(false)
+const mobileMenuOpen = ref(false)
 
 const isLoggedIn = computed(() => auth.isAuthenticated)
 
 const handleScroll = () => {
   const scrollPosition = window.scrollY || window.pageYOffset
   isSolid.value = scrollPosition > 20
+}
+
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value
 }
 
 onMounted(() => {
@@ -53,11 +77,18 @@ const handleLogout = () => {
   z-index: 1030;
   background-color: transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 20px 5%;
+  padding: 15px 5%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   direction: rtl;
+  flex-wrap: wrap;
+}
+
+.navbar-solid {
+  background-color: white !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px 5%;
 }
 
 .navbar-brand-container {
@@ -72,65 +103,135 @@ const handleLogout = () => {
   transition: all 0.4s ease;
 }
 
-.navbar-solid {
-  background-color: white !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 10px 5%;
-}
-
 .navbar-brand {
   color: #3b3a39;
-  font-weight: bold;
+  font-weight: 700;
   transition: color 0.4s ease;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
   font-size: 1.5rem;
+  text-decoration: none;
 }
 
 .navbar-solid .navbar-brand {
   color: #2d333f !important;
 }
 
+/* Desktop menu */
+.desktop-menu {
+  display: flex;
+  gap: 10px;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  font-size: 1.5rem;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+  background-color: #FFD700;
+  color: #333;
+}
+
+/* Mobile menu dropdown */
+.mobile-menu {
+  display: none;
+  width: 100%;
+  background-color: white;
+  border-radius: 10px;
+  margin-top: 15px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-menu-item {
+  padding: 12px 15px;
+  color: #333;
+  text-decoration: none;
+  font-family: 'Noto Sans Arabic', sans-serif;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-menu-item i {
+  width: 20px;
+  color: #FFD700;
+}
+
+.mobile-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Button styles */
 .btn-outline-light {
   background-color: white;
   color: #2d333f;
-  transition: all 0.4s ease;
-  font-family: 'Cairo', sans-serif;
+  border: 1px solid #FFD700;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Noto Sans Arabic', sans-serif;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-outline-light:hover {
-  border: 1px solid #FFC107;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #2d333f;
+  background-color: #FFD700;
+  color: #333;
+  border-color: #FFD700;
 }
 
 .btn-light {
-  background-color: white;
+  background-color: #FFD700;
   color: #2d333f;
-  transition: all 0.4s ease;
-  font-family: 'Cairo', sans-serif;
+  border: 1px solid #FFD700;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Noto Sans Arabic', sans-serif;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-light:hover {
-  border: 1px solid #FFC107;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #2d333f;
+  background-color: #ffc107;
+  border-color: #ffc107;
 }
 
 .btn-outline-light-danger {
   background-color: white;
   color: #2d333f;
-  transition: all 0.4s ease;
-  font-family: 'Cairo', sans-serif;
+  border: 1px solid #dc3545;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Noto Sans Arabic', sans-serif;
+  cursor: pointer;
 }
 
 .btn-outline-light-danger:hover {
-  border: 1px solid #FFC107;
-  background-color: red;
+  background-color: #dc3545;
   color: white;
 }
 
 .navbar-solid .btn-outline-light {
-  background-color: #FFC107;
+  background-color: #FFD700;
   color: white;
 }
 
@@ -147,17 +248,41 @@ const handleLogout = () => {
   background-color: #434a59;
 }
 
+/* Responsive styles */
 @media (max-width: 768px) {
-  .navbar-logo {
-    height: 30px;
+  .desktop-menu {
+    display: none;
   }
 
-  .navbar-brand {
-    font-size: 1.2rem;
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: flex;
   }
 
   .navbar {
-    padding: 15px 3%;
+    padding: 12px 4%;
+  }
+
+  .navbar-logo {
+    height: 35px;
+  }
+
+  .navbar-brand {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn,
+  .mobile-menu {
+    display: none !important;
+  }
+
+  .desktop-menu {
+    display: flex;
   }
 }
 </style>
