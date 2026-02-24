@@ -2,7 +2,7 @@
   <nav :class="['navbar', 'navbar-expand-lg', { 'navbar-solid': isSolid }]">
     <div class="navbar-brand-container">
       <img src="@/assets/ta3eem-logo.png" alt="شعار طعم" class="navbar-logo">
-      <router-link to="/" class="navbar-brand">طعم</router-link>
+      <router-link to="/" class="navbar-brand">Ta3eem</router-link>
     </div>
 
     <!-- Mobile menu button -->
