@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <DashboardNav />
     <h1 class="dashboard-title">إدارة القائمة</h1>
 
     <!-- Add Item Form -->
@@ -154,8 +155,12 @@
 
 <script>
 import axios from '@/utils/api';
+import DashboardNav from '@/components/DashboardNav.vue';
 
 export default {
+    components: {
+    DashboardNav
+  },
   data() {
     return {
       menuItems: [],

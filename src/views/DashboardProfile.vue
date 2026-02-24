@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <DashboardNav />
     <div class="dashboard-header">
       <h2>إدارة الملف الشخصي</h2>
     </div>
@@ -128,8 +129,11 @@
 
 <script>
 import axios from '@/utils/api';
-
+import DashboardNav from '@/components/DashboardNav.vue';
 export default {
+    components: {
+    DashboardNav
+  },
   data() {
     return {
       profile: {
