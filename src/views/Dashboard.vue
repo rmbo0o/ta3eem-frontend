@@ -1,27 +1,24 @@
 <template>
   <div class="dashboard-container">
     <h1 class="dashboard-title">إدارة القائمة</h1>
-      <div style="background: #333; color: #FFD700; padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center;">
-      <div style="font-size: 1.2rem; margin-bottom: 10px;">🔧 وضع التصحيح</div>
-      <div style="display: flex; gap: 20px; justify-content: center;">
-        <div>حالة التحميل: <strong>{{ isLoading ? '✅ جاري التحميل' : '❌ غير نشط' }}</strong></div>
-        <button
-          @click="isLoading = false"
-          style="background: #FFD700; color: #333; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer;">
-          🔓 إعادة تعيين
-        </button>
-        <button
-          @click="testAddItem"
-          style="background: #4CAF50; color: white; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer;">
-          🧪 اختبار الإضافة
-        </button>
-      </div>
-    </div>
+
     <!-- Add Item Form -->
     <form @submit.prevent="addItem" class="crud-form">
       <h2 class="form-title">إضافة عنصر جديد</h2>
-      <input v-model="newItem.food_name" placeholder="الاسم" required class="form-input" />
-      <textarea v-model="newItem.description" placeholder="الوصف" class="form-textarea"></textarea>
+
+      <input
+        v-model="newItem.food_name"
+        placeholder="الاسم"
+        required
+        class="form-input"
+      />
+
+      <textarea
+        v-model="newItem.description"
+        placeholder="الوصف"
+        class="form-textarea"
+      ></textarea>
+
       <input
         v-model.number="newItem.price"
         type="number"
@@ -30,9 +27,8 @@
         placeholder="السعر (ر.س)"
         required
         class="form-input"
-        @change="newItem.price = Number(newItem.price)"
-        @input="validatePrice"
       />
+
       <div class="upload-section">
         <label class="upload-label">
           <input
@@ -58,7 +54,7 @@
       />
 
       <!-- Category Dropdown -->
-      <select v-model="newItem.category_id" class="form-select">
+      <select v-model="newItem.category_id" class="form-select" required>
         <option disabled value="">اختر الفئة</option>
         <option v-for="category in categories" :key="category.id" :value="category.id">
           {{ category.name }}
@@ -68,6 +64,8 @@
       <button type="submit" :disabled="isLoading" class="submit-btn">
         {{ isLoading ? "جاري الإضافة..." : "إضافة عنصر" }}
       </button>
+
+      <!-- Error Message -->
       <p v-if="addError" class="error-message">{{ addError }}</p>
     </form>
 
@@ -95,6 +93,7 @@
             @error="handleImageError"
             class="item-image"
           >
+
           <div v-if="item.social_media_link" class="social-link">
             <a
               :href="ensureHttp(item.social_media_link)"
@@ -105,9 +104,7 @@
               <i class="fab fa-instagram"></i> {{ formatSocialLink(item.social_media_link) }}
             </a>
           </div>
-          <div v-if="item.category_name" class="category-badge">
-            <span class="badge-text">{{ item.category_name }}</span>
-          </div>
+
           <div class="card-actions">
             <button @click="startEdit(item)" class="action-btn edit-btn">تعديل</button>
             <button @click="confirmDelete(item.id)" class="action-btn delete-btn">حذف</button>
@@ -180,19 +177,16 @@ export default {
     };
   },
   methods: {
-    validatePrice() {
-      if (isNaN(Number(this.newItem.price))) {
-        this.newItem.price = 0;
-      }
-    },
     formatPrice(price) {
       const num = typeof price === 'string' ? parseFloat(price) : Number(price);
       return isNaN(num) ? '0.00' : num.toFixed(2);
     },
+
     getCategoryName(id) {
       const found = this.categories.find(cat => cat.id === id);
       return found ? found.name : 'غير معروفة';
     },
+
     async fetchMenu() {
       this.isLoading = true;
       try {
@@ -205,9 +199,10 @@ export default {
       } catch (err) {
         console.error('فشل تحميل القائمة:', err);
       } finally {
-        this.loading = false;
+        this.isLoading = false;
       }
     },
+
     async fetchCategories() {
       try {
         const res = await axios.get('/categories');
@@ -216,6 +211,7 @@ export default {
         console.error('فشل تحميل الفئات:', err);
       }
     },
+
     handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -223,36 +219,69 @@ export default {
         this.newItem.image_preview = URL.createObjectURL(file);
       }
     },
+
     handleImageError(event) {
       console.error('فشل تحميل الصورة:', event.target.src);
       event.target.style.display = 'none';
     },
+
     removeImage() {
       this.newItem.image_file = null;
       this.newItem.image_preview = '';
       this.newItem.image_url = '';
       this.$refs.fileInput.value = '';
     },
+
     async addItem() {
-      this.addError = null;
+      // Validate required fields
+      if (!this.newItem.food_name) {
+        alert('الرجاء إدخال اسم العنصر');
+        return;
+      }
+
+      if (!this.newItem.price || this.newItem.price <= 0) {
+        alert('الرجاء إدخال سعر صحيح');
+        return;
+      }
+
+      if (!this.newItem.category_id) {
+        alert('الرجاء اختيار فئة');
+        return;
+      }
+
+      // Check token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('الرجاء تسجيل الدخول أولاً');
+        this.$router.push('/login');
+        return;
+      }
+
       this.isLoading = true;
+      this.addError = null;
+
       try {
         const formData = new FormData();
         formData.append('food_name', this.newItem.food_name);
-        formData.append('description', this.newItem.description);
+        formData.append('description', this.newItem.description || '');
         formData.append('price', this.newItem.price);
-        formData.append('social_media_link', this.newItem.social_media_link);
+        formData.append('social_media_link', this.newItem.social_media_link || '');
         formData.append('category_id', this.newItem.category_id);
+
         if (this.newItem.image_file) {
           formData.append('image', this.newItem.image_file);
         }
-        await axios.post('/menu', formData, {
+
+        const response = await axios.post('/menu', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           }
         });
-        await this.fetchMenu();
+
+        console.log('✅ تمت الإضافة بنجاح:', response.data);
+
+        // Reset form
         this.newItem = {
           food_name: '',
           description: '',
@@ -263,22 +292,39 @@ export default {
           social_media_link: '',
           category_id: ''
         };
+
+        // Refresh menu
+        await this.fetchMenu();
+
+        alert('✅ تمت إضافة العنصر بنجاح');
+
       } catch (err) {
-        console.error('خطأ في إضافة العنصر:', err);
-        this.addError = err.response?.data?.message || 'فشل إضافة العنصر';
+        console.error('❌ خطأ في الإضافة:', err);
+
+        if (err.response) {
+          this.addError = err.response.data.message || `خطأ ${err.response.status}`;
+        } else if (err.request) {
+          this.addError = 'لا يمكن الاتصال بالخادم';
+        } else {
+          this.addError = 'خطأ في إعداد الطلب';
+        }
+
       } finally {
         this.isLoading = false;
       }
     },
+
     startEdit(item) {
       this.editingItem = {
         ...item,
       };
       this.editError = null;
     },
+
     async saveEdit() {
       this.editError = null;
       this.isLoading = true;
+
       try {
         const payload = {
           food_name: this.editingItem.food_name,
@@ -296,10 +342,10 @@ export default {
 
         await this.fetchMenu();
         this.editingItem = null;
+
       } catch (err) {
         if (err.response) {
-          this.editError = err.response.data.message ||
-            `خطأ في الخادم (${err.response.status})`;
+          this.editError = err.response.data.message || `خطأ في الخادم (${err.response.status})`;
         } else if (err.request) {
           this.editError = 'لا يوجد استجابة من الخادم';
         } else {
@@ -309,14 +355,17 @@ export default {
         this.isLoading = false;
       }
     },
+
     cancelEdit() {
       this.editingItem = null;
     },
+
     confirmDelete(id) {
       if (confirm('هل أنت متأكد من حذف هذا العنصر؟')) {
         this.deleteItem(id);
       }
     },
+
     async deleteItem(id) {
       this.isLoading = true;
       try {
@@ -328,16 +377,19 @@ export default {
         this.isLoading = false;
       }
     },
+
     ensureHttp(link) {
       if (!link) return '';
       return link.startsWith('http') ? link : `https://${link}`;
     },
+
     formatSocialLink(link) {
       if (!link) return '';
       const match = link.match(/instagram\.com\/([^/]+)/);
       return match ? `@${match[1]}` : link;
     }
   },
+
   created() {
     this.fetchMenu();
     this.fetchCategories();
@@ -361,7 +413,7 @@ export default {
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
   font-weight: 700;
 }
 
@@ -377,7 +429,7 @@ export default {
   color: #FFD700;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .form-input, .form-textarea, .form-select {
@@ -388,7 +440,7 @@ export default {
   border: 1px solid #555;
   background-color: #2d333f;
   color: #ffffff;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
   text-align: right;
 }
 
@@ -426,7 +478,7 @@ export default {
   border-radius: 6px;
   font-weight: 500;
   transition: all 0.3s ease;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .upload-text:hover {
@@ -480,7 +532,7 @@ export default {
   transition: all 0.3s ease;
   width: 100%;
   margin-top: 1rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .submit-btn:hover:not(:disabled), .save-btn:hover:not(:disabled) {
@@ -503,7 +555,7 @@ export default {
   transition: all 0.3s ease;
   width: 100%;
   margin-top: 0.5rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .cancel-btn:hover {
@@ -532,27 +584,27 @@ export default {
   color: #FFD700;
   margin-bottom: 0.75rem;
   font-size: 1.25rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .item-description {
   color: #e0e0e0;
   margin-bottom: 0.75rem;
   line-height: 1.5;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .item-price {
   color: #ffffff;
   font-weight: 500;
   margin-bottom: 0.75rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .item-category {
   color: #e0e0e0;
   margin-bottom: 0.75rem;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .item-image {
@@ -571,25 +623,11 @@ export default {
   color: #FFD700;
   text-decoration: none;
   transition: all 0.3s ease;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .social-link-anchor:hover {
   text-decoration: underline;
-}
-
-.category-badge {
-  margin-bottom: 1rem;
-}
-
-.badge-text {
-  background-color: #FFD700;
-  color: #2d333f;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  font-family: 'Cairo', sans-serif;
 }
 
 .card-actions {
@@ -606,7 +644,7 @@ export default {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .edit-btn {
@@ -632,14 +670,14 @@ export default {
   color: #ff6b6b;
   margin-top: 1rem;
   text-align: center;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 .loading-state {
   text-align: center;
   padding: 2rem;
   color: #e0e0e0;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 @media (max-width: 768px) {
