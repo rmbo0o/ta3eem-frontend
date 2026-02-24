@@ -2,7 +2,7 @@
   <div id="app" dir="rtl">
     <Navbar />
     <router-view></router-view>
-    
+
   </div>
 </template>
 
@@ -23,18 +23,16 @@ export default {
 /* Import Noto Sans Arabic Font */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap');
 
-/* Global RTL and Font Settings */
+/* Global RTL and Font Settings - FORCE on EVERYTHING */
+* {
+  font-family: 'Noto Sans Arabic', sans-serif !important;
+}
+
 body, html {
   margin: 0;
   padding: 0;
   direction: rtl;
   text-align: right;
-  font-family: 'Noto Sans Arabic', sans-serif;
-}
-
-/* All elements will inherit the font */
-h1, h2, h3, h4, h5, h6, p, a, span, div, button, input, textarea, select, label, small {
-  font-family: 'Noto Sans Arabic', sans-serif;
 }
 
 /* RTL Helper Classes */
@@ -53,7 +51,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, div, button, input, textarea, select, label,
   flex-direction: row-reverse;
 }
 
-/* Fix input groups for RTL */
+/* Fix input groups */
 .input-group > .form-control:not(:last-child) {
   border-radius: 0 0.25rem 0.25rem 0;
 }
@@ -62,24 +60,9 @@ h1, h2, h3, h4, h5, h6, p, a, span, div, button, input, textarea, select, label,
   border-radius: 0.25rem 0 0 0.25rem;
 }
 
-/* Fix icons in buttons for RTL */
+/* Fix icons in buttons */
 .btn i {
   margin-left: 0.5rem;
   margin-right: 0;
-}
-
-/* Optional: Different font weights for headings */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700; /* Bold for headings */
-}
-
-/* Optional: Lighter weight for body text */
-p, span, div, label {
-  font-weight: 400; /* Regular for body text */
-}
-
-/* Optional: Medium weight for buttons */
-button, .btn {
-  font-weight: 500; /* Medium for buttons */
 }
 </style>

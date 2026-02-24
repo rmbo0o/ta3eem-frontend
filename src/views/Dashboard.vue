@@ -1,7 +1,22 @@
 <template>
   <div class="dashboard-container">
     <h1 class="dashboard-title">إدارة القائمة</h1>
-
+      <div style="background: #333; color: #FFD700; padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center;">
+      <div style="font-size: 1.2rem; margin-bottom: 10px;">🔧 وضع التصحيح</div>
+      <div style="display: flex; gap: 20px; justify-content: center;">
+        <div>حالة التحميل: <strong>{{ isLoading ? '✅ جاري التحميل' : '❌ غير نشط' }}</strong></div>
+        <button
+          @click="isLoading = false"
+          style="background: #FFD700; color: #333; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer;">
+          🔓 إعادة تعيين
+        </button>
+        <button
+          @click="testAddItem"
+          style="background: #4CAF50; color: white; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer;">
+          🧪 اختبار الإضافة
+        </button>
+      </div>
+    </div>
     <!-- Add Item Form -->
     <form @submit.prevent="addItem" class="crud-form">
       <h2 class="form-title">إضافة عنصر جديد</h2>
