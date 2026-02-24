@@ -2,27 +2,27 @@
   <nav :class="['navbar', 'navbar-expand-lg', { 'navbar-solid': isSolid }]">
     <div class="navbar-brand-container">
       <img src="@/assets/ta3eem-logo.png" alt="شعار طعم" class="navbar-logo">
-      <router-link to="/" class="navbar-brand">Ta3eem</router-link>
+      <router-link to="/" class="navbar-brand">طعم</router-link>
     </div>
 
     <!-- Mobile menu button -->
-    <button class="mobile-menu-btn" @click="toggleMobileMenu" v-if="!isLoggedIn">
+    <button class="mobile-menu-btn" @click="toggleMobileMenu" v-if="!isLoggedIn && !isDashboard">
       <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Desktop menu -->
-    <div class="desktop-menu" v-if="!isLoggedIn">
+    <!-- Desktop menu - hide on dashboard -->
+    <div class="desktop-menu" v-if="!isLoggedIn && !isDashboard">
       <router-link to="/login" class="btn btn-outline-light">تسجيل الدخول</router-link>
       <router-link to="/register" class="btn btn-light">إنشاء حساب</router-link>
     </div>
 
-    <!-- Logout button -->
-    <div v-if="isLoggedIn">
+    <!-- Logout button - only show on non-dashboard pages -->
+    <div v-if="isLoggedIn && !isDashboard">
       <button @click="handleLogout" class="btn btn-outline-light-danger">تسجيل الخروج</button>
     </div>
 
     <!-- Mobile menu dropdown -->
-    <div class="mobile-menu" v-if="mobileMenuOpen && !isLoggedIn">
+    <div class="mobile-menu" v-if="mobileMenuOpen && !isLoggedIn && !isDashboard">
       <router-link to="/login" class="mobile-menu-item" @click="mobileMenuOpen = false">
         <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
       </router-link>
@@ -44,6 +44,12 @@ const isSolid = ref(false)
 const mobileMenuOpen = ref(false)
 
 const isLoggedIn = computed(() => auth.isAuthenticated)
+
+// Check if current route is dashboard
+const isDashboard = computed(() => {
+  const path = router.currentRoute.value.path
+  return path.startsWith('/dashboard')
+})
 
 const handleScroll = () => {
   const scrollPosition = window.scrollY || window.pageYOffset

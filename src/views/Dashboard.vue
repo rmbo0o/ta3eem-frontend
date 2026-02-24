@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container" style="padding-top: 80px;">
     <DashboardNav />
     <h1 class="dashboard-title">إدارة القائمة</h1>
 
