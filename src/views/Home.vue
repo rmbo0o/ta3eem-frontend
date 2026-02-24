@@ -5,7 +5,7 @@
     </div>
     <CategoryCards />
     <div class="container mt-4">
-      <h2 class="mb-3 text-center">Welcome to Foodie</h2>
+    
       <!-- Include Featured Profiles Component -->
       <FeaturedProfiles />
     </div>
