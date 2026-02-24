@@ -55,7 +55,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p class="copyright">&copy; {{ currentYear }} طعم - جميع الحقوق محفوظة</p>
+        <p class="copyright">&copy; {{ currentYear }} ta3eem - جميع الحقوق محفوظة</p>
       </div>
     </div>
   </footer>

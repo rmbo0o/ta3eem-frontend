@@ -23,31 +23,59 @@ export default {
 /* Import Noto Sans Arabic Font */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap');
 
-/* Global RTL and Font Settings */
-* {
+/* Reset ALL fonts - but exclude ALL icon classes */
+*:not(i):not([class^="fa-"]):not([class*=" fa-"]) {
   font-family: 'Noto Sans Arabic', sans-serif !important;
 }
 
-/* BUT - Exclude Font Awesome icons! */
-i[class^="fa-"],
-i[class*=" fa-"],
-.fab, .fas, .far, .fal, .fad, .fat {
-  font-family: "Font Awesome 6 Free" !important;
+/* Base icon styles - for ALL font awesome icons */
+i,
+[class^="fa-"],
+[class*=" fa-"],
+.fa,
+.fas,
+.far,
+.fal,
+.fad,
+.fat,
+.fab {
+  font-family: inherit !important;
 }
 
+/* Brand icons (Facebook, Instagram, Twitter, etc) */
 .fab {
   font-family: "Font Awesome 6 Brands" !important;
+  font-weight: 400 !important;
 }
 
-.fas, .far, .fal, .fad, .fat {
+/* Solid icons (map, phone, envelope, etc) */
+.fas {
   font-family: "Font Awesome 6 Free" !important;
-  font-weight: 900;
+  font-weight: 900 !important;
 }
 
+/* Regular icons */
 .far {
-  font-weight: 400;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 400 !important;
 }
 
+/* Optional: Light icons (if you use them) */
+.fal {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 300 !important;
+}
+
+/* Make sure icons have the correct display */
+i {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+/* Your existing RTL styles */
 body, html {
   margin: 0;
   padding: 0;
@@ -55,7 +83,6 @@ body, html {
   text-align: right;
 }
 
-/* RTL Helper Classes */
 .ms-auto {
   margin-right: auto !important;
   margin-left: 0 !important;
