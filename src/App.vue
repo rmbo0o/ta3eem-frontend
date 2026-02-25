@@ -3,18 +3,21 @@
     <Navbar />
     <router-view></router-view>
     <InstallPrompt />
+    <IOSInstallPrompt />
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue'
 import InstallPrompt from './components/InstallPrompt.vue'
+import IOSInstallPrompt from './components/IOSInstallPrompt.vue'
 
 export default {
   name: 'App',
   components: {
     Navbar,
-    InstallPrompt
+    InstallPrompt,
+    IOSInstallPrompt
   }
 }
 </script>
