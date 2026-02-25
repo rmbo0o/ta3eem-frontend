@@ -1,22 +1,22 @@
-
-
 {
   "name": "foodie-frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
- "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "lint": "eslint . --fix",
-  "format": "prettier --write src/"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/"
+  },
   "dependencies": {
     "axios": "^1.8.4",
     "bootstrap": "^5.3.5",
     "dotenv": "^16.5.0",
     "pinia": "^3.0.2",
+    "vite-plugin-image-optimizer": "^2.0.3",
+    "vite-plugin-pwa": "^1.2.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
@@ -29,6 +29,7 @@
     "eslint-plugin-vue": "~10.0.0",
     "globals": "^16.0.0",
     "prettier": "3.5.3",
+    "sharp": "^0.34.5",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2"
   }

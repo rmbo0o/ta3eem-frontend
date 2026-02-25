@@ -2,19 +2,19 @@
   <div id="app" dir="rtl">
     <Navbar />
     <router-view></router-view>
-
+    <InstallPrompt />
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue'
-
+import InstallPrompt from './components/InstallPrompt.vue'
 
 export default {
   name: 'App',
   components: {
     Navbar,
-
+    InstallPrompt
   }
 }
 </script>

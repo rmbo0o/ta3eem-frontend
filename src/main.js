@@ -20,3 +20,14 @@ app.config.devtools = true
 app.use(createPinia())
 app.use(router)
 app.mount('#app')
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(registration => {
+      console.log('✅ PWA ready - يمكن تثبيت التطبيق')
+    }).catch(error => {
+      console.log('❌ Service Worker failed:', error)
+    })
+  })
+}
