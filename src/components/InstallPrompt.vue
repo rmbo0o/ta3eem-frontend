@@ -1,9 +1,9 @@
 <template>
   <div v-if="showPrompt" class="install-prompt">
     <div class="prompt-content">
-      <img src="/icon-512x512.png" alt="طعم" class="prompt-icon">
+      <img src="/icon-512x512.png" alt="طعيم" class="prompt-icon">
       <div class="prompt-text">
-        <h3>ثبّت تطبيق طعم</h3>
+        <h3>ثبّت تطبيق طعيم</h3>
         <p>حمّل التطبيق على جهازك لاستخدام أسرع</p>
       </div>
       <div class="prompt-buttons">

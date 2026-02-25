@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icon-512x512.png'],
       manifest: {
-        name: 'طعم - Ta3eem',
-        short_name: 'طعم',
+        name: 'طعيم - Ta3eem',
+        short_name: 'طعيم',
         description: 'اكتشف أفضل المطاعم المحلية وتجارب الطعام',
         theme_color: '#FFD700',
         background_color: '#2d333f',

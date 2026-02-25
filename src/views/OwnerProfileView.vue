@@ -22,7 +22,7 @@
           </div>
 
           <div class="text-center text-md-start">
-            <h2 class="mb-2 text-dark">ملف {{ ownerProfile.username }} الشخصي</h2>
+            <h2 class="mb-2 text-dark"> {{ ownerProfile.username }} </h2>
             <p class="lead mb-0 text-dark">{{ ownerProfile.bio }}</p>
             <div v-if="instagramDisplay" class="instagram-link mt-3">
               <a
