@@ -3,7 +3,7 @@
     <div class="ios-prompt-content">
       <div class="ios-prompt-header">
         <img src="/icon-512x512.png" alt="طعم" class="ios-prompt-icon">
-        <h3>تثبيت تطبيق طعم</h3>
+        <h3>تثبيت تطبيق طعيم</h3>
         <button @click="dismissIOSPrompt" class="ios-close-btn">
           <i class="fas fa-times"></i>
         </button>
